@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Maqueta Café Montaña</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: el lienzo 3D ocupa toda la pantalla; encima flotan la cabecera, la barra de vistas y la ficha del equipo. En AR la misma capa queda sobre la cámara. */
+  :root {
+    --bg: #0c1116; --panel: #151c24; --line: #2a3742; --fg: #e3e9ed; --muted: #97a6b2;
+    --med: #2dd4bf; --bog: #f5a524; --cal: #a78bfa; --wan: #94a3b8; --pkt: #ffffff;
+    --coffee: #8a5636; --crema: #c99a6b;
+    --f-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+    --f-body: "IBM Plex Sans", system-ui, "Segoe UI", sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--f-body); overflow: hidden; }
+  body.ar { background: transparent; }
+  #scene { position: fixed; inset: 0; }
+  #scene canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+  .ui { position: fixed; z-index: 5; }
+  .top { top: calc(env(safe-area-inset-top, 0px) + 16px); left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; pointer-events: none; }
+  .head { display: grid; gap: 4px; max-width: 520px; }
+  .eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  h1 { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: clamp(26px, 4vw, 40px); line-height: 1.05; text-wrap: balance; }
+  .hint { font-size: 13px; color: var(--muted); }
+  body.ar .head { display: none; }
+  .xlink { pointer-events: auto; justify-self: start; font-size: 13px; color: var(--med); text-decoration: none; border-bottom: 1px solid currentColor; }
+  .xlink:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+  .hud { pointer-events: none; background: color-mix(in srgb, var(--panel) 92%, transparent); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; min-width: 170px; display: grid; gap: 4px; margin-left: auto; }
+  .hud .k { font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .hud .ttl { font-family: var(--f-display); font-size: 40px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .hud .msg { font-size: 12.5px; color: var(--fg); max-width: 240px; }
+
+  .artip { top: calc(env(safe-area-inset-top, 0px) + 16px); left: 50%; transform: translateX(-50%); max-width: calc(100% - 32px); background: color-mix(in srgb, var(--panel) 92%, transparent); border: 1px solid var(--med); border-radius: 999px; padding: 8px 16px; font-size: 14px; text-align: center; pointer-events: none; }
+
+  .bar { bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); left: max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-wrap: wrap; gap: 8px; max-width: calc(100% - 32px - 340px); }
+  .bar button { font: 500 14px var(--f-body); color: var(--fg); background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .bar button .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--muted)); }
+  .bar button[aria-pressed="true"] { border-color: var(--c, var(--fg)); background: color-mix(in srgb, var(--c, var(--fg)) 18%, var(--panel)); }
+  .bar button.send { border-color: var(--wan); }
+  .bar button.arbtn { border-color: var(--med); color: var(--med); }
+  .bar button:disabled { opacity: .5; cursor: default; }
+  .bar button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  body.ar .bar [data-view], body.ar #ar-enter { display: none; }
+
+  .card { right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); width: 320px; background: color-mix(in srgb, var(--panel) 96%, transparent); border: 1px solid var(--line); border-top: 3px solid var(--c, var(--line)); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; }
+  .card .who { display: grid; gap: 2px; }
+  .card .sede { font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--c, var(--muted)); }
+  .card h2 { margin: 0; font-family: var(--f-display); font-size: 26px; font-weight: 700; line-height: 1.1; }
+  .card .model { font-size: 12.5px; color: var(--muted); }
+  .card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 13px; }
+  .card dt { color: var(--muted); }
+  .card dd { margin: 0; font-family: var(--f-mono); font-size: 12.5px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+  .card .note { font-size: 12.5px; color: var(--muted); }
+
+  #labels { position: fixed; inset: 0; pointer-events: none; z-index: 3; overflow: hidden; }
+  .lbl { position: absolute; left: 0; top: 0; white-space: nowrap; font-family: var(--f-mono); font-size: 11.5px; padding: 3px 7px; border-radius: 4px; background: color-mix(in srgb, var(--bg) 78%, transparent); color: var(--fg); border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); will-change: transform; }
+  .lbl.sede { font-family: var(--f-display); font-size: 20px; font-weight: 700; letter-spacing: .02em; border: 0; background: none; color: var(--c); padding: 0; text-shadow: 0 1px 8px var(--bg); }
+  .lbl.sel { background: color-mix(in srgb, var(--c) 30%, var(--bg)); }
+
+  /* Loader: una taza que se llena mientras carga el motor 3D */
+  #loader { position: fixed; inset: 0; z-index: 20; background: var(--bg); display: grid; place-items: center; align-content: center; gap: 18px; transition: opacity .45s ease; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); }
+  #loader.done { opacity: 0; pointer-events: none; }
+  #loader svg { width: min(180px, 46vw); height: auto; overflow: visible; }
+  #loader .cup { fill: none; stroke: var(--fg); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+  #loader .brew { fill: var(--coffee); }
+  #loader .crema { fill: var(--crema); }
+  #loader .level { animation: fill 1.7s cubic-bezier(.3,.7,.4,1) forwards; transform: translateY(64px); }
+  #loader .stream { fill: var(--coffee); transform-origin: 100px 8px; animation: pour 1.7s ease-in-out forwards; }
+  #loader .steam path { fill: none; stroke: var(--muted); stroke-width: 4; stroke-linecap: round; opacity: 0; animation: steam 2.4s ease-in-out 1.6s infinite; }
+  #loader .steam path:nth-child(2) { animation-delay: 1.95s; }
+  #loader .steam path:nth-child(3) { animation-delay: 2.3s; }
+  #loader .brand { font-family: var(--f-display); font-size: 26px; font-weight: 700; text-align: center; }
+  #loader .sub { font-family: var(--f-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); text-align: center; }
+  @keyframes fill { to { transform: translateY(0); } }
+  @keyframes pour { 0% { transform: scaleY(0); } 12% { transform: scaleY(1); } 82% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1) translateY(70px); opacity: 0; } }
+  @keyframes steam { 0% { opacity: 0; transform: translateY(8px); } 40% { opacity: .7; } 100% { opacity: 0; transform: translateY(-14px); } }
+  @media (prefers-reduced-motion: reduce) {
+    #loader .level, #loader .stream, #loader .steam path { animation: none; }
+    #loader .level { transform: none; } #loader .stream { opacity: 0; } #loader .steam path { opacity: .6; }
+  }
+
+  .fail { position: fixed; inset: 0; display: grid; place-items: center; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); text-align: center; color: var(--muted); }
+
+  @media (max-width: 720px) {
+    .bar { max-width: none; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); }
+    .bar button { padding: 7px 12px; font-size: 13px; }
+    .card { left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); width: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 112px); padding: 10px 12px; gap: 6px; }
+    .card dl { font-size: 12px; }
+    .hint { display: none; }
+    .hud { min-width: 0; padding: 8px 10px; }
+    .hud .ttl { font-size: 28px; }
+    .lbl { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loader" role="status" aria-label="Cargando la maqueta">
+  <svg viewBox="0 0 200 190" aria-hidden="true">
+    <defs><clipPath id="cup-in"><path d="M58 94 H142 V122 Q142 157 100 157 Q58 157 58 122 Z"/></clipPath></defs>
+    <rect class="stream" x="96" y="8" width="8" height="90" rx="4"/>
+    <g clip-path="url(#cup-in)"><g class="level">
+      <rect class="brew" x="50" y="100" width="100" height="70"/>
+      <rect class="crema" x="50" y="97" width="100" height="6" rx="3"/>
+    </g></g>
+    <g class="steam"><path d="M82 82 q-6 -10 0 -20 q6 -10 0 -20"/><path d="M100 80 q-6 -10 0 -20 q6 -10 0 -20"/><path d="M118 82 q-6 -10 0 -20 q6 -10 0 -20"/></g>
+    <path class="cup" d="M55 92 H145 V122 Q145 160 100 160 Q55 160 55 122 Z"/>
+    <path class="cup" d="M145 102 Q172 102 172 121 Q172 140 145 138"/>
+    <path class="cup" d="M38 172 H162"/>
+  </svg>
+  <div class="brand">Café Montaña</div>
+  <div class="sub">Sirviendo la red…</div>
+</div>
+
+<div id="scene" aria-label="Maqueta 3D de la red: Medellín en el centro conectada por enlaces WAN con Bogotá y Cali"></div>
+
+<div id="overlay">
+  <div id="labels"></div>
+
+  <div class="ui top">
+    <div class="head">
+      <div class="eyebrow">Café Montaña S.A.S. · Redes de Datos I</div>
+      <h1>Maqueta 3D de la red multisede</h1>
+      <div class="hint">Arrastra para girar · rueda o pellizco para acercar · toca un equipo para ver sus datos</div>
+      <a class="xlink" href="index.html">Ver el diseño completo (tablas y VLSM) →</a>
+    </div>
+    <div class="hud" id="hud" hidden>
+      <span class="k">TTL del paquete</span>
+      <span class="ttl" id="ttl">128</span>
+      <span class="msg" id="msg">PC-CALI1 envía a PC-BOG1</span>
+    </div>
+  </div>
+
+  <div class="ui artip" id="ar-tip" hidden>Apunta al piso o a una mesa y toca la pantalla para colocar la maqueta</div>
+
+  <div class="ui bar" role="group" aria-label="Vistas">
+    <button type="button" id="v-all" data-view="all" aria-pressed="true">Vista general</button>
+    <button type="button" id="v-med" data-view="med" aria-pressed="false" style="--c:var(--med)"><span class="dot"></span>Medellín</button>
+    <button type="button" id="v-bog" data-view="bog" aria-pressed="false" style="--c:var(--bog)"><span class="dot"></span>Bogotá</button>
+    <button type="button" id="v-cal" data-view="cal" aria-pressed="false" style="--c:var(--cal)"><span class="dot"></span>Cali</button>
+    <button type="button" id="send" class="send">Enviar paquete Cali → Bogotá</button>
+    <button type="button" id="ar-enter" class="arbtn" hidden>Ver en realidad aumentada</button>
+    <button type="button" id="ar-place" hidden>Mover maqueta</button>
+    <button type="button" id="ar-exit" hidden>Salir de AR</button>
+  </div>
+
+  <aside class="ui card" id="card" aria-live="polite">
+    <div class="who">
+      <span class="sede" id="c-sede">Cómo usarla</span>
+      <h2 id="c-name">Toca un equipo</h2>
+      <span class="model" id="c-model">Cada router, switch, servidor, PC, impresora y portátil muestra aquí su IP, máscara, gateway y tipo de asignación.</span>
+    </div>
+    <dl id="c-rows">
+      <dt>Bloque</dt><dd>172.20.0.0/23</dd>
+      <dt>Sedes</dt><dd>Medellín · Bogotá · Cali</dd>
+      <dt>WAN</dt><dd>172.20.1.48/30 · 172.20.1.52/30</dd>
+    </dl>
+    <div class="note" id="c-note">Los cables grises son de cobre; los gruesos son los enlaces seriales WAN; las líneas punteadas son wifi. En Android con Chrome aparece el botón de realidad aumentada.</div>
+  </aside>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const loader = document.getElementById('loader');
+  const loadStart = performance.now();
+  let loaderGone = false;
+  function hideLoader() {
+    if (loaderGone) return; loaderGone = true;
+    const wait = Math.max(0, (reduce ? 300 : 1900) - (performance.now() - loadStart));
+    setTimeout(() => { loader.classList.add('done'); setTimeout(() => { loader.hidden = true; }, 500); }, wait);
+  }
+  if (!window.THREE || !THREE.OrbitControls) {
+    document.getElementById('scene').innerHTML = '<div class="fail">No se pudo cargar el motor 3D. Revisa la conexión a internet y recarga la página.</div>';
+    hideLoader();
+    return;
+  }
+  const css = getComputedStyle(document.documentElement);
+  const C = k => new THREE.Color(css.getPropertyValue(k).trim());
+  const COL = { med: C('--med'), bog: C('--bog'), cal: C('--cal'), wan: C('--wan') };
+  const SEDE = { med: 'Sede central · Medellín', bog: 'Sede remota 1 · Bogotá', cal: 'Sede remota 2 · Cali' };
+  const CSSV = { med: 'var(--med)', bog: 'var(--bog)', cal: 'var(--cal)' };
+
+  // ---------- Datos del diseño ----------
+  const D = [
+    { id: 'r-med', name: 'R-MEDELLIN', t: 'router', s: 'med', p: [0, -3.6], model: 'Router Cisco 2911 + módulo HWIC-2T',
+      rows: [['G0/0 · LAN admin', '172.20.0.129/26'], ['G0/1 · Servidores', '172.20.1.33/28'], ['G0/2 · Wifi', '172.20.1.1/27'], ['S0/0/0 · WAN1', '172.20.1.49/30'], ['S0/0/1 · WAN2', '172.20.1.53/30']],
+      note: 'Rutas estáticas: 172.20.0.0/25 vía 172.20.1.50 y 172.20.0.192/26 vía 172.20.1.54. Helper 172.20.1.34 en G0/0 y G0/2.' },
+    { id: 'sw-admin', name: 'SW-ADMIN', t: 'switch', s: 'med', p: [-4.6, -6], model: 'Switch Cisco 2960',
+      rows: [['Red', '172.20.0.128/26'], ['Enlace', 'G0/1 → R-MEDELLIN G0/0'], ['Puertos', 'Fa0/1–Fa0/3']], note: 'Switch de capa 2: no lleva IP en este diseño.' },
+    { id: 'pc-adm1', name: 'PC-ADM1', t: 'pc', s: 'med', p: [-6.2, -8.6], model: 'PC de escritorio · LAN administrativa',
+      rows: [['IPv4', 'DHCP .0.140 – .0.189'], ['Máscara', '255.255.255.192 (/26)'], ['Gateway', '172.20.0.129'], ['DNS', '172.20.1.34'], ['Asignación', 'DHCP · pool ADMIN']] },
+    { id: 'pc-adm2', name: 'PC-ADM2', t: 'pc', s: 'med', p: [-4.6, -8.6], model: 'PC de escritorio · LAN administrativa',
+      rows: [['IPv4', 'DHCP .0.140 – .0.189'], ['Máscara', '255.255.255.192 (/26)'], ['Gateway', '172.20.0.129'], ['DNS', '172.20.1.34'], ['Asignación', 'DHCP · pool ADMIN']] },
+    { id: 'imp-med', name: 'IMP-MED', t: 'printer', s: 'med', p: [-3, -8.6], model: 'Impresora de red',
+      rows: [['IPv4', '172.20.0.130'], ['Máscara', '255.255.255.192 (/26)'], ['Gateway', '172.20.0.129'], ['Asignación', 'Estática']] },
+    { id: 'sw-serv', name: 'SW-SERVIDORES', t: 'switch', s: 'med', p: [0, -6.6], model: 'Switch Cisco 2960',
+      rows: [['Red', '172.20.1.32/28'], ['Enlace', 'G0/1 → R-MEDELLIN G0/1'], ['Puertos', 'Fa0/1–Fa0/2']], note: 'Switch de capa 2: no lleva IP en este diseño.' },
+    { id: 'srv-dhcp', name: 'SRV-DHCP-DNS', t: 'server', s: 'med', p: [-0.9, -9], model: 'Servidor · DHCP y DNS',
+      rows: [['IPv4', '172.20.1.34'], ['Máscara', '255.255.255.240 (/28)'], ['Gateway', '172.20.1.33'], ['Asignación', 'Estática']],
+      note: 'Reparte IPs a las 4 LAN (pools ADMIN, WIFI, BOGOTA y CALI) y resuelve www.cafemontana.com → 172.20.1.35.' },
+    { id: 'srv-web', name: 'SRV-WEB', t: 'server', s: 'med', p: [0.9, -9], model: 'Servidor web · HTTP',
+      rows: [['IPv4', '172.20.1.35'], ['Máscara', '255.255.255.240 (/28)'], ['Gateway', '172.20.1.33'], ['Asignación', 'Estática']], note: 'Publica la intranet www.cafemontana.com.' },
+    { id: 'ap-med', name: 'AP-MED', t: 'ap', s: 'med', p: [4.6, -6], model: 'Access point · AccessPoint-PT',
+      rows: [['SSID', 'CAFE-MONTANA'], ['Seguridad', 'WPA2-PSK · AES'], ['Red', '172.20.1.0/27'], ['IPv4', 'Sin IP (capa 2)']], note: 'Conectado a R-MEDELLIN G0/2. Los portátiles reciben IP del pool WIFI.' },
+    { id: 'lap-1', name: 'LAPTOP-1', t: 'laptop', s: 'med', p: [3.7, -8.7], model: 'Portátil · tarjeta WPC300N',
+      rows: [['IPv4', 'DHCP .1.10 – .1.29'], ['Máscara', '255.255.255.224 (/27)'], ['Gateway', '172.20.1.1'], ['Asignación', 'DHCP · pool WIFI']] },
+    { id: 'lap-2', name: 'LAPTOP-2', t: 'laptop', s: 'med', p: [5.5, -8.7], model: 'Portátil · tarjeta WPC300N',
+      rows: [['IPv4', 'DHCP .1.10 – .1.29'], ['Máscara', '255.255.255.224 (/27)'], ['Gateway', '172.20.1.1'], ['Asignación', 'DHCP · pool WIFI']] },
+
+    { id: 'r-bog', name: 'R-BOGOTA', t: 'router', s: 'bog', p: [-7.4, 4.2], model: 'Router Cisco 1941 + módulo HWIC-2T',
+      rows: [['G0/0 · LAN', '172.20.0.1/25'], ['S0/0/0 · WAN1', '172.20.1.50/30'], ['Ruta', '0.0.0.0/0 vía 172.20.1.49']], note: 'Helper 172.20.1.34 en G0/0 para el DHCP de Medellín.' },
+    { id: 'sw-bog', name: 'SW-BOG', t: 'switch', s: 'bog', p: [-9, 6.2], model: 'Switch Cisco 2960',
+      rows: [['Red', '172.20.0.0/25'], ['Enlace', 'G0/1 → R-BOGOTA G0/0'], ['Puertos', 'Fa0/1–Fa0/3']], note: 'Switch de capa 2: no lleva IP en este diseño.' },
+    { id: 'pc-bog1', name: 'PC-BOG1', t: 'pc', s: 'bog', p: [-10.6, 8.3], model: 'PC de escritorio',
+      rows: [['IPv4', 'DHCP .0.10 – .0.109'], ['Máscara', '255.255.255.128 (/25)'], ['Gateway', '172.20.0.1'], ['DNS', '172.20.1.34'], ['Asignación', 'DHCP · pool BOGOTA']] },
+    { id: 'pc-bog2', name: 'PC-BOG2', t: 'pc', s: 'bog', p: [-9, 8.3], model: 'PC de escritorio',
+      rows: [['IPv4', 'DHCP .0.10 – .0.109'], ['Máscara', '255.255.255.128 (/25)'], ['Gateway', '172.20.0.1'], ['DNS', '172.20.1.34'], ['Asignación', 'DHCP · pool BOGOTA']] },
+    { id: 'imp-bog', name: 'IMP-BOG', t: 'printer', s: 'bog', p: [-7.4, 8.3], model: 'Impresora de red',
+      rows: [['IPv4', '172.20.0.2'], ['Máscara', '255.255.255.128 (/25)'], ['Gateway', '172.20.0.1'], ['Asignación', 'Estática']] },
+
+    { id: 'r-cal', name: 'R-CALI', t: 'router', s: 'cal', p: [7.4, 4.2], model: 'Router Cisco 1941 + módulo HWIC-2T',
+      rows: [['G0/0 · LAN', '172.20.0.193/26'], ['S0/0/0 · WAN2', '172.20.1.54/30'], ['Ruta', '0.0.0.0/0 vía 172.20.1.53']], note: 'Helper 172.20.1.34 en G0/0 para el DHCP de Medellín.' },
+    { id: 'sw-cal', name: 'SW-CALI', t: 'switch', s: 'cal', p: [9, 6.2], model: 'Switch Cisco 2960',
+      rows: [['Red', '172.20.0.192/26'], ['Enlace', 'G0/1 → R-CALI G0/0'], ['Puertos', 'Fa0/1–Fa0/3']], note: 'Switch de capa 2: no lleva IP en este diseño.' },
+    { id: 'pc-cal1', name: 'PC-CALI1', t: 'pc', s: 'cal', p: [7.4, 8.3], model: 'PC de escritorio',
+      rows: [['IPv4', 'DHCP .0.200 – .0.239'], ['Máscara', '255.255.255.192 (/26)'], ['Gateway', '172.20.0.193'], ['DNS', '172.20.1.34'], ['Asignación', 'DHCP · pool CALI']] },
+    { id: 'pc-cal2', name: 'PC-CALI2', t: 'pc', s: 'cal', p: [9, 8.3], model: 'PC de escritorio',
+      rows: [['IPv4', 'DHCP .0.200 – .0.239'], ['Máscara', '255.255.255.192 (/26)'], ['Gateway', '172.20.0.193'], ['DNS', '172.20.1.34'], ['Asignación', 'DHCP · pool CALI']] },
+    { id: 'imp-cal', name: 'IMP-CALI', t: 'printer', s: 'cal', p: [10.6, 8.3], model: 'Impresora de red',
+      rows: [['IPv4', '172.20.0.194'], ['Máscara', '255.255.255.192 (/26)'], ['Gateway', '172.20.0.193'], ['Asignación', 'Estática']] },
+  ];
+  const BY = {}; D.forEach(d => BY[d.id] = d);
+  const COPPER = [['r-med', 'sw-admin'], ['r-med', 'sw-serv'], ['r-med', 'ap-med'], ['sw-admin', 'pc-adm1'], ['sw-admin', 'pc-adm2'], ['sw-admin', 'imp-med'],
+    ['sw-serv', 'srv-dhcp'], ['sw-serv', 'srv-web'], ['r-bog', 'sw-bog'], ['sw-bog', 'pc-bog1'], ['sw-bog', 'pc-bog2'], ['sw-bog', 'imp-bog'],
+    ['r-cal', 'sw-cal'], ['sw-cal', 'pc-cal1'], ['sw-cal', 'pc-cal2'], ['sw-cal', 'imp-cal']];
+  const WAN = [['r-med', 'r-bog', 'WAN1 · 172.20.1.48/30'], ['r-med', 'r-cal', 'WAN2 · 172.20.1.52/30']];
+  const WIFI = [['ap-med', 'lap-1'], ['ap-med', 'lap-2']];
+  const PLAT = { med: { c: [0, -6.2], w: 15, d: 8.4 }, bog: { c: [-9, 6.3], w: 7.6, d: 5.6 }, cal: { c: [9, 6.3], w: 7.6, d: 5.6 } };
+  const TOP = 0.3;
+  const CABLE_Y = { router: 0.3, switch: 0.18, pc: 0.05, server: 0.2, printer: 0.2, ap: 0.1, laptop: 0.05 };
+  const LBL_Y = { router: 1.0, switch: 0.75, pc: 1.35, server: 1.85, printer: 0.95, ap: 1.25, laptop: 1.05 };
+  const AR_SCALE = 0.025;  // 26 unidades de ancho ≈ 65 cm sobre la mesa
+
+  // ---------- Escena ----------
+  const host = document.getElementById('scene');
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
+  catch (e) { host.innerHTML = '<div class="fail">Este navegador no permite gráficos 3D (WebGL). Prueba en Chrome, Edge o Firefox actualizados.</div>'; hideLoader(); return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType('local');
+  host.appendChild(renderer.domElement);
+  const scene = new THREE.Scene();
+  const BG = C('--bg');
+  scene.background = BG;
+  scene.fog = new THREE.Fog(BG, 40, 80);
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.01, 200);
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = 0.08;
+  controls.maxPolarAngle = Math.PI * 0.46; controls.minDistance = 5; controls.maxDistance = 55;
+
+  scene.add(new THREE.HemisphereLight(0xcfd8e6, 0x0b0f14, 0.85));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.7); sun.position.set(8, 18, 10); scene.add(sun);
+  const grid = new THREE.GridHelper(80, 80, 0x1c2631, 0x151d26); grid.position.y = -0.01; scene.add(grid);
+
+  const world = new THREE.Group(); scene.add(world);
+
+  const BODY = 0x1e2733, BODY2 = 0x2b3646, INK = 0xd9e0ea;
+  const std = (c, o) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 0.55, metalness: 0.25 }, o || {}));
+  const basic = c => new THREE.MeshBasicMaterial({ color: c });
+  const dim = (c, k) => c.clone().multiplyScalar(k);
+
+  for (const k in PLAT) {
+    const pl = PLAT[k];
+    const box = new THREE.Mesh(new THREE.BoxGeometry(pl.w, TOP, pl.d), std(dim(COL[k], 0.12).add(new THREE.Color(0x111820))));
+    box.position.set(pl.c[0], TOP / 2, pl.c[1]); world.add(box);
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(box.geometry), new THREE.LineBasicMaterial({ color: COL[k] }));
+    edges.position.copy(box.position); world.add(edges);
+  }
+
+  const pickables = [];
+  const groups = {};
+  function tag(g, d) { g.traverse(o => { if (o.isMesh) { o.userData.dev = d.id; pickables.push(o); } }); }
+  function mk(geo, mat, x, y, z) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); return m; }
+
+  const BUILD = {
+    router(c) { const g = new THREE.Group();
+      g.add(mk(new THREE.CylinderGeometry(0.72, 0.72, 0.42, 32), std(BODY2), 0, 0.21, 0));
+      g.add(mk(new THREE.CylinderGeometry(0.74, 0.74, 0.06, 32), basic(c), 0, 0.44, 0));
+      const a = mk(new THREE.BoxGeometry(0.9, 0.03, 0.1), basic(INK), 0, 0.48, 0); g.add(a);
+      const b = a.clone(); b.rotation.y = Math.PI / 2; g.add(b); return g; },
+    switch(c) { const g = new THREE.Group();
+      g.add(mk(new THREE.BoxGeometry(1.9, 0.28, 0.8), std(BODY2), 0, 0.14, 0));
+      g.add(mk(new THREE.BoxGeometry(1.9, 0.02, 0.12), basic(c), 0, 0.29, -0.3));
+      for (let i = 0; i < 8; i++) g.add(mk(new THREE.BoxGeometry(0.12, 0.08, 0.02), basic(dim(c, 0.8)), -0.7 + i * 0.2, 0.14, 0.41));
+      return g; },
+    pc(c) { const g = new THREE.Group();
+      g.add(mk(new THREE.BoxGeometry(0.5, 0.04, 0.36), std(BODY2), 0, 0.02, 0));
+      g.add(mk(new THREE.BoxGeometry(0.07, 0.42, 0.07), std(BODY2), 0, 0.23, -0.05));
+      g.add(mk(new THREE.BoxGeometry(1.05, 0.66, 0.07), std(BODY), 0, 0.72, 0));
+      g.add(mk(new THREE.PlaneGeometry(0.94, 0.55), basic(dim(c, 0.5)), 0, 0.72, 0.037)); return g; },
+    server(c) { const g = new THREE.Group();
+      g.add(mk(new THREE.BoxGeometry(0.72, 1.45, 0.95), std(BODY), 0, 0.725, 0));
+      for (let i = 0; i < 4; i++) g.add(mk(new THREE.BoxGeometry(0.5, 0.05, 0.02), basic(i === 0 ? c : dim(c, 0.55)), 0, 1.25 - i * 0.28, 0.48));
+      return g; },
+    printer(c) { const g = new THREE.Group();
+      g.add(mk(new THREE.BoxGeometry(1.0, 0.46, 0.78), std(BODY2), 0, 0.23, 0));
+      g.add(mk(new THREE.BoxGeometry(0.72, 0.04, 0.5), std(INK, { roughness: 0.9, metalness: 0 }), 0, 0.48, -0.05));
+      g.add(mk(new THREE.BoxGeometry(0.6, 0.05, 0.02), basic(c), 0, 0.3, 0.4)); return g; },
+    ap(c) { const g = new THREE.Group();
+      g.add(mk(new THREE.CylinderGeometry(0.06, 0.06, 0.55, 12), std(BODY2), 0, 0.27, 0));
+      g.add(mk(new THREE.CylinderGeometry(0.5, 0.5, 0.1, 32), std(BODY2), 0, 0.58, 0));
+      g.add(mk(new THREE.CylinderGeometry(0.52, 0.52, 0.03, 32), basic(c), 0, 0.64, 0));
+      g.userData.rings = [];
+      for (let i = 0; i < 3; i++) {
+        const r = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.02, 6, 48), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0 }));
+        r.rotation.x = Math.PI / 2; r.position.y = 0.66; g.add(r); g.userData.rings.push(r);
+      }
+      return g; },
+    laptop(c) { const g = new THREE.Group();
+      g.add(mk(new THREE.BoxGeometry(0.95, 0.05, 0.62), std(BODY2), 0, 0.025, 0));
+      const lid = new THREE.Group(); lid.position.set(0, 0.05, -0.3); lid.rotation.x = -0.28;
+      lid.add(mk(new THREE.BoxGeometry(0.95, 0.62, 0.04), std(BODY), 0, 0.31, 0));
+      lid.add(mk(new THREE.PlaneGeometry(0.85, 0.52), basic(dim(c, 0.5)), 0, 0.31, 0.021)); g.add(lid); return g; },
+  };
+
+  const selRing = new THREE.Mesh(new THREE.RingGeometry(0.95, 1.1, 48), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.9 }));
+  selRing.rotation.x = -Math.PI / 2; selRing.visible = false; world.add(selRing);
+
+  for (const d of D) {
+    const g = BUILD[d.t](COL[d.s]);
+    g.position.set(d.p[0], TOP, d.p[1]);
+    world.add(g); groups[d.id] = g; tag(g, d);
+  }
+
+  const anchor = id => { const d = BY[id]; return new THREE.Vector3(d.p[0], TOP + CABLE_Y[d.t], d.p[1]); };
+  const curves = {};
+  function curve(a, b, arch) {
+    const pa = anchor(a), pb = anchor(b);
+    const mid = pa.clone().add(pb).multiplyScalar(0.5); mid.y += arch;
+    const c = new THREE.QuadraticBezierCurve3(pa, mid, pb); curves[a + '|' + b] = c; return c;
+  }
+  const copperMat = std(0x5b6878, { roughness: 0.8 });
+  for (const [a, b] of COPPER) world.add(new THREE.Mesh(new THREE.TubeGeometry(curve(a, b, 0.25), 24, 0.035, 6), copperMat));
+  const wanMat = std(COL.wan, { emissive: dim(COL.wan, 0.25) });
+  const wanDots = [];
+  for (const [a, b] of WAN) {
+    const c = curve(a, b, 3.2);
+    world.add(new THREE.Mesh(new THREE.TubeGeometry(c, 64, 0.09, 8), wanMat));
+    for (let i = 0; i < 3; i++) { const s = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 12), basic(0xdbe3ee)); world.add(s); wanDots.push({ c, o: i / 3, s }); }
+  }
+  for (const [a, b] of WIFI) {
+    const pa = anchor(a); pa.y = TOP + 0.66; const pb = anchor(b); pb.y = TOP + 0.4;
+    const geo = new THREE.BufferGeometry().setFromPoints([pa, pb]);
+    const line = new THREE.Line(geo, new THREE.LineDashedMaterial({ color: COL.med, dashSize: 0.18, gapSize: 0.14 }));
+    line.computeLineDistances(); world.add(line);
+  }
+
+  // ---------- Etiquetas ----------
+  const LBL = document.getElementById('labels');
+  const labels = [];
+  function addLabel(text, pos, cls, sede, dev) {
+    const el = document.createElement('div');
+    el.className = 'lbl ' + cls; el.textContent = text; el.style.setProperty('--c', CSSV[sede] || 'var(--wan)');
+    LBL.appendChild(el); labels.push({ el, pos, cls, sede, dev }); return el;
+  }
+  addLabel('MEDELLÍN · SEDE CENTRAL', new THREE.Vector3(0, TOP, -10.9), 'sede', 'med');
+  addLabel('BOGOTÁ · REMOTA 1', new THREE.Vector3(-9, TOP, 9.6), 'sede', 'bog');
+  addLabel('CALI · REMOTA 2', new THREE.Vector3(9, TOP, 9.6), 'sede', 'cal');
+  for (const d of D) addLabel(d.name, new THREE.Vector3(d.p[0], TOP + LBL_Y[d.t], d.p[1]), 'dev', d.s, d.id);
+  for (const [a, b, txt] of WAN) addLabel(txt, curves[a + '|' + b].getPoint(0.5).add(new THREE.Vector3(0, 0.6, 0)), 'wan', null);
+
+  // ---------- Vistas ----------
+  const VIEWS = {
+    all: { pos: [0, 21, 25], tgt: [0, 0, 0] },
+    med: { pos: [0, 9.5, 3.5], tgt: [0, 0, -6.4] },
+    bog: { pos: [-9, 7.5, 15.5], tgt: [-9, 0, 6.2] },
+    cal: { pos: [9, 7.5, 15.5], tgt: [9, 0, 6.2] },
+  };
+  let view = 'all';
+  let tween = null;
+  const inAR = () => renderer.xr.isPresenting;
+  function goView(v, instant) {
+    view = v;
+    document.querySelectorAll('.bar [data-view]').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === v ? 'true' : 'false'));
+    if (inAR()) return;
+    const to = VIEWS[v];
+    const p1 = new THREE.Vector3(...to.pos), t1 = new THREE.Vector3(...to.tgt);
+    const narrow = window.innerWidth < 720;
+    if (narrow) p1.sub(t1).multiplyScalar(v === 'all' ? 1.35 : 1.25).add(t1);
+    if (instant || reduce) { camera.position.copy(p1); controls.target.copy(t1); tween = null; return; }
+    tween = { p0: camera.position.clone(), t0: controls.target.clone(), p1, t1, start: performance.now(), dur: 1100 };
+  }
+  document.querySelectorAll('.bar [data-view]').forEach(b => b.addEventListener('click', () => goView(b.dataset.view)));
+
+  // ---------- Ficha ----------
+  const card = document.getElementById('card');
+  const cSede = document.getElementById('c-sede'), cName = document.getElementById('c-name'), cModel = document.getElementById('c-model');
+  const cRows = document.getElementById('c-rows'), cNote = document.getElementById('c-note');
+  let selected = null;
+  function select(id) {
+    selected = id; const d = BY[id];
+    card.style.setProperty('--c', CSSV[d.s]);
+    cSede.textContent = SEDE[d.s]; cName.textContent = d.name; cModel.textContent = d.model;
+    cRows.innerHTML = '';
+    for (const [k, v] of d.rows) {
+      const dt = document.createElement('dt'); dt.textContent = k;
+      const dd = document.createElement('dd'); dd.textContent = v;
+      cRows.append(dt, dd);
+    }
+    cNote.textContent = d.note || ''; cNote.hidden = !d.note;
+    selRing.visible = true; selRing.material.color.copy(COL[d.s]);
+    selRing.position.set(d.p[0], TOP + 0.02, d.p[1]);
+    for (const l of labels) l.el.classList.toggle('sel', l.dev === id);
+  }
+
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  let downAt = null;
+  renderer.domElement.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; });
+  renderer.domElement.addEventListener('pointerup', e => {
+    if (inAR() || !downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return;
+    const r = renderer.domElement.getBoundingClientRect();
+    ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    const hit = ray.intersectObjects(pickables, false)[0];
+    if (hit) { const id = hit.object.userData.dev; select(id); if (view === 'all') goView(BY[id].s); }
+  });
+  renderer.domElement.addEventListener('pointermove', e => {
+    if (inAR()) return;
+    const r = renderer.domElement.getBoundingClientRect();
+    ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    renderer.domElement.style.cursor = ray.intersectObjects(pickables, false).length ? 'pointer' : 'grab';
+  });
+
+  // ---------- Paquete ----------
+  const PATH = ['pc-cal1', 'sw-cal', 'r-cal', 'r-med', 'r-bog', 'sw-bog', 'pc-bog1'];
+  const STEP = { 'pc-cal1': 'PC-CALI1 envía un paquete a PC-BOG1', 'sw-cal': 'SW-CALI lo entrega a su gateway 172.20.0.193',
+    'r-cal': 'R-CALI: ruta por defecto 0.0.0.0/0 → R-MEDELLIN', 'r-med': 'R-MEDELLIN: 172.20.0.0/25 vía 172.20.1.50 → R-BOGOTA',
+    'r-bog': 'R-BOGOTA: 172.20.0.0/25 es red conectada', 'sw-bog': 'SW-BOG lo entrega a PC-BOG1', 'pc-bog1': 'Llegó a PC-BOG1 con TTL 125: atravesó 3 routers' };
+  const pkt = new THREE.Mesh(new THREE.SphereGeometry(0.22, 20, 20), basic(C('--pkt')));
+  const halo = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 20), new THREE.MeshBasicMaterial({ color: C('--pkt'), transparent: true, opacity: 0.18 }));
+  pkt.add(halo); pkt.visible = false; world.add(pkt);
+  const hud = document.getElementById('hud'), ttlEl = document.getElementById('ttl'), msgEl = document.getElementById('msg');
+  const sendBtn = document.getElementById('send');
+  let run = null;
+  function segCurve(a, b) {
+    if (curves[a + '|' + b]) return { c: curves[a + '|' + b], rev: false };
+    return { c: curves[b + '|' + a], rev: true };
+  }
+  sendBtn.addEventListener('click', () => {
+    if (run) return;
+    goView('all');
+    const segs = [];
+    for (let i = 0; i < PATH.length - 1; i++) {
+      const s = segCurve(PATH[i], PATH[i + 1]);
+      const wan = PATH[i].startsWith('r-') && PATH[i + 1].startsWith('r-');
+      segs.push(Object.assign(s, { from: PATH[i], to: PATH[i + 1], dur: reduce ? 300 : (wan ? 1900 : 800) }));
+    }
+    run = { segs, i: 0, start: performance.now() + (reduce || inAR() ? 0 : 900), ttl: 128 };
+    hud.hidden = false; ttlEl.textContent = '128'; msgEl.textContent = STEP['pc-cal1'];
+    sendBtn.disabled = true; pkt.visible = true; pkt.position.copy(anchor('pc-cal1'));
+  });
+  function stepRun(now) {
+    if (!run || now < run.start) return;
+    const s = run.segs[run.i];
+    const k = Math.min(1, (now - run.start) / s.dur);
+    const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    pkt.position.copy(s.c.getPoint(s.rev ? 1 - e : e));
+    if (k >= 1) {
+      const id = s.to;
+      if (id.startsWith('r-')) { run.ttl -= 1; ttlEl.textContent = String(run.ttl); }
+      msgEl.textContent = STEP[id];
+      run.i += 1; run.start = now + (reduce ? 0 : 450);
+      if (run.i >= run.segs.length) {
+        run = null;
+        setTimeout(() => { pkt.visible = false; sendBtn.disabled = false; sendBtn.textContent = 'Enviar otra vez'; }, 1600);
+      }
+    }
+  }
+
+  // ---------- Realidad aumentada (WebXR, Android + Chrome) ----------
+  const overlay = document.getElementById('overlay');
+  const arEnter = document.getElementById('ar-enter'), arPlace = document.getElementById('ar-place'), arExit = document.getElementById('ar-exit');
+  const arTip = document.getElementById('ar-tip');
+  const reticle = new THREE.Mesh(new THREE.RingGeometry(0.06, 0.08, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: COL.med }));
+  reticle.matrixAutoUpdate = false; reticle.visible = false; scene.add(reticle);
+  const controller = renderer.xr.getController(0); scene.add(controller);
+  let hitSource = null, placed = false;
+  const tmpM = new THREE.Matrix4(), tmpV = new THREE.Vector3();
+
+  if (navigator.xr && navigator.xr.isSessionSupported) {
+    navigator.xr.isSessionSupported('immersive-ar').then(ok => { arEnter.hidden = !ok; }).catch(() => {});
+  }
+  arEnter.addEventListener('click', async () => {
+    try {
+      const session = await navigator.xr.requestSession('immersive-ar', {
+        requiredFeatures: ['hit-test'], optionalFeatures: ['dom-overlay'], domOverlay: { root: overlay } });
+      startAR(session);
+    } catch (e) {
+      cNote.hidden = false;
+      cNote.textContent = 'No se pudo abrir la realidad aumentada en este dispositivo. Usa Chrome en un Android compatible con ARCore y abre la página desde una dirección https.';
+    }
+  });
+  function startAR(session) {
+    tween = null; placed = false; run = null; pkt.visible = false; sendBtn.disabled = false;
+    document.body.classList.add('ar');
+    scene.background = null; scene.fog = null; grid.visible = false;
+    world.visible = false; world.scale.setScalar(AR_SCALE);
+    arTip.hidden = false; arPlace.hidden = true; arExit.hidden = false;
+    renderer.xr.setSession(session);
+    session.requestReferenceSpace('viewer').then(ref => session.requestHitTestSource({ space: ref })).then(src => { hitSource = src; });
+    session.addEventListener('end', endAR);
+  }
+  function endAR() {
+    hitSource = null; reticle.visible = false;
+    document.body.classList.remove('ar');
+    scene.background = BG; scene.fog = new THREE.Fog(BG, 40, 80); grid.visible = true;
+    world.visible = true; world.scale.setScalar(1); world.position.set(0, 0, 0); world.rotation.set(0, 0, 0);
+    arTip.hidden = true; arPlace.hidden = true; arExit.hidden = true;
+    goView('all', true);
+  }
+  arExit.addEventListener('click', () => { const s = renderer.xr.getSession(); if (s) s.end(); });
+  arPlace.addEventListener('click', () => { placed = false; world.visible = false; arTip.hidden = false; arPlace.hidden = true; });
+  overlay.addEventListener('beforexrselect', e => { if (e.target.closest('button, .card')) e.preventDefault(); });
+  controller.addEventListener('select', () => {
+    if (!inAR()) return;
+    if (!placed) {
+      if (!reticle.visible) return;
+      world.position.setFromMatrixPosition(reticle.matrix);
+      const cam = renderer.xr.getCamera(camera);
+      tmpV.setFromMatrixPosition(cam.matrixWorld);
+      world.rotation.set(0, Math.atan2(tmpV.x - world.position.x, tmpV.z - world.position.z), 0);
+      world.visible = true; placed = true; reticle.visible = false;
+      arTip.hidden = true; arPlace.hidden = false;
+      return;
+    }
+    tmpM.identity().extractRotation(controller.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(tmpM);
+    const hit = ray.intersectObjects(pickables, false)[0];
+    if (hit) select(hit.object.userData.dev);
+  });
+
+  // ---------- Bucle ----------
+  const v3 = new THREE.Vector3();
+  function placeLabels() {
+    const ar = inAR();
+    const w = window.innerWidth, h = window.innerHeight;
+    const cam = ar ? renderer.xr.getCamera(camera).cameras[0] : camera;
+    world.updateMatrixWorld();
+    for (const l of labels) {
+      let show = true;
+      if (ar && !placed) show = false;
+      else if (l.cls === 'dev') show = ar ? (BY[l.dev].t === 'router' || l.dev === selected)
+        : (view === l.sede || l.dev === selected || (view === 'all' && BY[l.dev].t === 'router'));
+      else if (l.cls === 'wan') show = ar || view === 'all';
+      if (!show || !cam) { l.el.hidden = true; continue; }
+      v3.copy(l.pos).applyMatrix4(world.matrixWorld).project(cam);
+      if (v3.z > 1 || v3.z < -1) { l.el.hidden = true; continue; }
+      l.el.hidden = false;
+      const x = (v3.x * 0.5 + 0.5) * w, y = (-v3.y * 0.5 + 0.5) * h;
+      l.el.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) translate(-50%,-100%)';
+    }
+  }
+  function resize() {
+    if (inAR()) return;
+    const w = host.clientWidth, h = host.clientHeight;
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize(); goView('all', true);
+
+  const t0 = performance.now();
+  renderer.setAnimationLoop((ts, xrFrame) => {
+    const now = performance.now();
+    const t = (now - t0) / 1000;
+    if (inAR()) {
+      if (xrFrame && hitSource && !placed) {
+        const res = xrFrame.getHitTestResults(hitSource);
+        if (res.length) {
+          const pose = res[0].getPose(renderer.xr.getReferenceSpace());
+          reticle.visible = true; reticle.matrix.fromArray(pose.transform.matrix);
+        } else reticle.visible = false;
+      }
+    } else {
+      if (tween) {
+        const k = Math.min(1, (now - tween.start) / tween.dur), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        camera.position.lerpVectors(tween.p0, tween.p1, e); controls.target.lerpVectors(tween.t0, tween.t1, e);
+        if (k >= 1) tween = null;
+      }
+      controls.update();
+    }
+    if (!reduce) {
+      for (const w of wanDots) w.s.position.copy(w.c.getPoint((t * 0.18 + w.o) % 1));
+      const rings = groups['ap-med'].userData.rings;
+      rings.forEach((r, i) => { const p = (t * 0.5 + i / 3) % 1; r.scale.setScalar(1 + p * 1.6); r.material.opacity = 0.5 * (1 - p); });
+      if (selRing.visible) selRing.material.opacity = 0.65 + 0.25 * Math.sin(t * 3);
+    } else { for (const w of wanDots) w.s.visible = false; }
+    stepRun(now);
+    renderer.render(scene, camera);
+    placeLabels();
+    hideLoader();
+  });
+})();
+</script>
+</body>
+</html>

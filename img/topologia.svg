@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" width="1000" height="650" font-family="Segoe UI, Arial, sans-serif">
+<style>
+.z{stroke-width:1.5;stroke-dasharray:5 4}
+.zl{font-family:"Arial Narrow",Arial,sans-serif;font-weight:700;font-size:15px;letter-spacing:.03em}
+.sub{font-family:Consolas,monospace;font-size:11px;fill:#55636f}
+.wire{stroke:#15202a;stroke-width:1.6;opacity:.75}
+.wifi{stroke:#0f766e;stroke-width:1.6;stroke-dasharray:3 4}
+.wanl{stroke:#475569;stroke-width:3;stroke-dasharray:10 5}
+.host{fill:#ffffff;stroke:#d3dbe1;stroke-width:1.5}
+.ht{font-family:Consolas,monospace;font-size:11px;fill:#15202a;text-anchor:middle}
+.swt{font-family:Consolas,monospace;font-size:11px;font-weight:600;text-anchor:middle}
+.rt{font-family:"Arial Narrow",Arial,sans-serif;font-size:14px;font-weight:700;fill:#15202a}
+.port{font-family:Consolas,monospace;font-size:11px;fill:#15202a}
+.want{font-family:Consolas,monospace;font-size:11px;fill:#475569}
+</style>
+<rect x="0" y="0" width="1000" height="650" fill="#f2f5f6"/>
+        <!-- Zonas -->
+        <rect class="z s-med" x="20" y="10" width="960" height="300" rx="10" style="fill:#e1f1ee;stroke:#0f766e"/>
+        <text class="zl" x="36" y="298" style="fill:#0f766e">SEDE CENTRAL · MEDELLÍN</text>
+        <rect class="z" x="60" y="380" width="380" height="260" rx="10" style="fill:#fbeddb;stroke:#b45309"/>
+        <text class="zl" x="76" y="402" style="fill:#b45309">SEDE REMOTA 1 · BOGOTÁ</text>
+        <text class="sub" x="76" y="418">LAN usuarios 172.20.0.0/25</text>
+        <rect class="z" x="560" y="380" width="380" height="260" rx="10" style="fill:#eee6fb;stroke:#6d28d9"/>
+        <text class="zl" x="576" y="402" style="fill:#6d28d9">SEDE REMOTA 2 · CALI</text>
+        <text class="sub" x="576" y="418">LAN usuarios 172.20.0.192/26</text>
+
+        <!-- Cables Medellín -->
+        <line class="wire" x1="90" y1="67" x2="160" y2="125"/>
+        <line class="wire" x1="180" y1="67" x2="180" y2="125"/>
+        <line class="wire" x1="270" y1="67" x2="200" y2="125"/>
+        <line class="wire" x1="440" y1="62" x2="480" y2="105"/>
+        <line class="wire" x1="560" y1="62" x2="520" y2="105"/>
+        <line class="wifi" x1="760" y1="67" x2="805" y2="125"/>
+        <line class="wifi" x1="880" y1="67" x2="835" y2="125"/>
+        <line class="wire" x1="477" y1="243" x2="240" y2="148"/>
+        <line class="wire" x1="500" y1="226" x2="500" y2="135"/>
+        <line class="wire" x1="523" y1="243" x2="770" y2="148"/>
+
+        <!-- WAN -->
+        <line class="wanl" x1="483" y1="267" x2="267" y2="413"/>
+        <line class="wanl" x1="517" y1="267" x2="733" y2="413"/>
+        <text class="want" x="362" y="338" text-anchor="end" font-weight="500">WAN1 · 172.20.1.48/30</text>
+        <text class="want" x="362" y="352" text-anchor="end">S0/0/0 .49 ↔ S0/0/0 .50</text>
+        <text class="want" x="638" y="338" font-weight="500">WAN2 · 172.20.1.52/30</text>
+        <text class="want" x="638" y="352">S0/0/1 .53 ↔ S0/0/0 .54</text>
+
+        <!-- Cables remotas -->
+        <line class="wire" x1="250" y1="452" x2="250" y2="505"/>
+        <line class="wire" x1="230" y1="535" x2="150" y2="583"/>
+        <line class="wire" x1="250" y1="535" x2="250" y2="583"/>
+        <line class="wire" x1="270" y1="535" x2="350" y2="583"/>
+        <line class="wire" x1="750" y1="452" x2="750" y2="505"/>
+        <line class="wire" x1="730" y1="535" x2="650" y2="583"/>
+        <line class="wire" x1="750" y1="535" x2="750" y2="583"/>
+        <line class="wire" x1="770" y1="535" x2="850" y2="583"/>
+
+        <!-- Puertos de R-MEDELLIN -->
+        <text class="port" x="340" y="218">G0/0</text>
+        <text class="port" x="340" y="232">172.20.0.129</text>
+        <text class="port" x="510" y="178">G0/1</text>
+        <text class="port" x="510" y="192">172.20.1.33</text>
+        <text class="port" x="628" y="222">G0/2</text>
+        <text class="port" x="628" y="236">172.20.1.1</text>
+        <text class="port" x="262" y="476">G0/0 · 172.20.0.1</text>
+        <text class="port" x="762" y="476">G0/0 · 172.20.0.193</text>
+
+        <!-- Hosts Medellín -->
+        <rect class="host" x="52" y="33" width="76" height="34" rx="4"/><text class="ht" x="90" y="54">PC-ADM1</text>
+        <rect class="host" x="142" y="33" width="76" height="34" rx="4"/><text class="ht" x="180" y="54">PC-ADM2</text>
+        <rect class="host" x="232" y="33" width="76" height="34" rx="4"/><text class="ht" x="270" y="54">IMP-MED</text>
+        <rect class="host" x="388" y="28" width="104" height="34" rx="4"/><text class="ht" x="440" y="49">SRV-DHCP-DNS</text>
+        <rect class="host" x="512" y="28" width="96" height="34" rx="4"/><text class="ht" x="560" y="49">SRV-WEB</text>
+        <rect class="host" x="718" y="33" width="84" height="34" rx="4"/><text class="ht" x="760" y="54">LAPTOP-1</text>
+        <rect class="host" x="838" y="33" width="84" height="34" rx="4"/><text class="ht" x="880" y="54">LAPTOP-2</text>
+
+        <!-- Switches y AP -->
+        <rect x="120" y="125" width="120" height="30" rx="4" style="fill:#ffffff;stroke:#0f766e;stroke-width:2"/>
+        <text class="swt" x="180" y="144" style="fill:#0f766e">SW-ADMIN</text>
+        <text class="sub" x="180" y="172" text-anchor="middle">LAN admin 172.20.0.128/26</text>
+        <rect x="440" y="105" width="120" height="30" rx="4" style="fill:#ffffff;stroke:#0f766e;stroke-width:2"/>
+        <text class="swt" x="500" y="124" style="fill:#0f766e">SW-SERVIDORES</text>
+        <text class="sub" x="432" y="152" text-anchor="end">LAN servidores 172.20.1.32/28</text>
+        <rect x="770" y="125" width="100" height="30" rx="15" style="fill:#ffffff;stroke:#0f766e;stroke-width:2"/>
+        <text class="swt" x="820" y="144" style="fill:#0f766e">AP-MED</text>
+        <text class="sub" x="820" y="172" text-anchor="middle">LAN inalámbrica 172.20.1.0/27</text>
+
+        <rect x="190" y="505" width="120" height="30" rx="4" style="fill:#ffffff;stroke:#b45309;stroke-width:2"/>
+        <text class="swt" x="250" y="524" style="fill:#b45309">SW-BOG</text>
+        <rect x="690" y="505" width="120" height="30" rx="4" style="fill:#ffffff;stroke:#6d28d9;stroke-width:2"/>
+        <text class="swt" x="750" y="524" style="fill:#6d28d9">SW-CALI</text>
+
+        <!-- Hosts remotas -->
+        <rect class="host" x="112" y="583" width="76" height="34" rx="4"/><text class="ht" x="150" y="604">PC-BOG1</text>
+        <rect class="host" x="212" y="583" width="76" height="34" rx="4"/><text class="ht" x="250" y="604">PC-BOG2</text>
+        <rect class="host" x="312" y="583" width="76" height="34" rx="4"/><text class="ht" x="350" y="604">IMP-BOG</text>
+        <rect class="host" x="608" y="583" width="84" height="34" rx="4"/><text class="ht" x="650" y="604">PC-CALI1</text>
+        <rect class="host" x="708" y="583" width="84" height="34" rx="4"/><text class="ht" x="750" y="604">PC-CALI2</text>
+        <rect class="host" x="808" y="583" width="84" height="34" rx="4"/><text class="ht" x="850" y="604">IMP-CALI</text>
+
+        <!-- Routers -->
+        <circle cx="500" cy="250" r="24" style="fill:#ffffff;stroke:#0f766e;stroke-width:3"/>
+        <text class="rt" x="500" y="255" text-anchor="middle" style="font-size:12px">R</text>
+        <text class="rt" x="500" y="291" text-anchor="middle">R-MEDELLIN</text>
+        <text class="sub" x="500" y="304" text-anchor="middle">Cisco 2911</text>
+        <circle cx="250" cy="430" r="22" style="fill:#ffffff;stroke:#b45309;stroke-width:3"/>
+        <text class="rt" x="250" y="435" text-anchor="middle" style="font-size:12px">R</text>
+        <text class="rt" x="282" y="434">R-BOGOTA</text>
+        <text class="sub" x="282" y="448">Cisco 1941</text>
+        <circle cx="750" cy="430" r="22" style="fill:#ffffff;stroke:#6d28d9;stroke-width:3"/>
+        <text class="rt" x="750" y="435" text-anchor="middle" style="font-size:12px">R</text>
+        <text class="rt" x="782" y="434">R-CALI</text>
+        <text class="sub" x="782" y="448">Cisco 1941</text>
+</svg>

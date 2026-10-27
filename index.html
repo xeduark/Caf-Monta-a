@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Red Café Montaña</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: hoja técnica de una sola columna; cada sede tiene su color y lo conserva en diagrama, tablas y etiquetas */
+  :root {
+    --bg: #f2f5f6; --surface: #ffffff; --fg: #15202a; --muted: #55636f; --line: #d3dbe1;
+    --med: #0f766e; --med-soft: #e1f1ee;
+    --bog: #b45309; --bog-soft: #fbeddb;
+    --cal: #6d28d9; --cal-soft: #eee6fb;
+    --wan: #475569; --wan-soft: #e7ebf0; --free: #eef1f3;
+    --f-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+    --f-body: "IBM Plex Sans", system-ui, "Segoe UI", sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1418; --surface: #161f26; --fg: #e3e9ed; --muted: #9babb6; --line: #2a3742;
+      --med: #2dd4bf; --med-soft: #0f2f2b;
+      --bog: #f5a524; --bog-soft: #32230d;
+      --cal: #a78bfa; --cal-soft: #241b3b;
+      --wan: #94a3b8; --wan-soft: #1f2a35; --free: #1a232b;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1418; --surface: #161f26; --fg: #e3e9ed; --muted: #9babb6; --line: #2a3742;
+    --med: #2dd4bf; --med-soft: #0f2f2b;
+    --bog: #f5a524; --bog-soft: #32230d;
+    --cal: #a78bfa; --cal-soft: #241b3b;
+    --wan: #94a3b8; --wan-soft: #1f2a35; --free: #1a232b;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--f-body);
+    font-size: 15px; line-height: 1.55;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 28px 64px;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; display: grid; gap: 44px; }
+  h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+  h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 700; }
+  h2 { font-size: 1.55rem; font-weight: 600; }
+  h3 { font-size: 1.1rem; font-weight: 600; }
+  p { margin: 0; max-width: 68ch; }
+  .mono, code { font-family: var(--f-mono); font-size: .92em; }
+  .eyebrow { font-family: var(--f-mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  section { display: grid; gap: 18px; min-width: 0; }
+  .sec-head { display: grid; gap: 6px; border-top: 2px solid var(--fg); padding-top: 14px; }
+
+  /* Cabecera */
+  header { display: grid; gap: 14px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { font-family: var(--f-mono); font-size: .8rem; border: 1px solid var(--line); background: var(--surface); padding: 3px 10px; border-radius: 4px; }
+  nav { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: .9rem; }
+  nav a { color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; }
+  nav a:hover, nav a:focus-visible { color: var(--fg); border-bottom-color: var(--fg); outline: none; }
+
+  /* Colores por sede */
+  .s-med { --c: var(--med); --cs: var(--med-soft); }
+  .s-bog { --c: var(--bog); --cs: var(--bog-soft); }
+  .s-cal { --c: var(--cal); --cs: var(--cal-soft); }
+  .s-wan { --c: var(--wan); --cs: var(--wan-soft); }
+  .chip { display: inline-block; font-family: var(--f-mono); font-size: .72rem; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; color: var(--c); background: var(--cs); padding: 2px 8px; border-radius: 3px; white-space: nowrap; }
+
+  /* Equipo */
+  .team { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+  .member { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--c); padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+  .member .turn { font-family: var(--f-mono); font-size: .75rem; color: var(--c); letter-spacing: .06em; text-transform: uppercase; }
+  .member ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: .92rem; }
+  .flow { font-family: var(--f-mono); font-size: .85rem; color: var(--muted); }
+
+  /* Diagrama */
+  .diagram { background: var(--surface); border: 1px solid var(--line); overflow-x: auto; padding: 8px; }
+  .diagram svg { display: block; width: 100%; min-width: 760px; height: auto; }
+  .z { stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .zl { font-family: var(--f-display); font-weight: 700; font-size: 15px; letter-spacing: .03em; }
+  .sub { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
+  .wire { stroke: var(--fg); stroke-width: 1.6; opacity: .75; }
+  .wifi { stroke: var(--med); stroke-width: 1.6; stroke-dasharray: 3 4; }
+  .wanl { stroke: var(--wan); stroke-width: 3; stroke-dasharray: 10 5; }
+  .host { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+  .ht { font-family: var(--f-mono); font-size: 11px; fill: var(--fg); text-anchor: middle; }
+  .swt { font-family: var(--f-mono); font-size: 11px; font-weight: 500; text-anchor: middle; }
+  .rt { font-family: var(--f-display); font-size: 14px; font-weight: 700; fill: var(--fg); }
+  .port { font-family: var(--f-mono); font-size: 11px; fill: var(--fg); }
+  .want { font-family: var(--f-mono); font-size: 11px; fill: var(--wan); }
+  .why { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px 28px; font-size: .93rem; }
+  .why div { display: grid; gap: 4px; }
+  .why b { font-family: var(--f-display); font-size: 1rem; }
+
+  /* Barra VLSM */
+  .space { display: grid; gap: 8px; }
+  .bar { display: flex; height: 54px; border: 1px solid var(--line); background: var(--free); }
+  .seg { background: var(--cs); border-right: 2px solid var(--surface); display: flex; flex-direction: column; justify-content: center; padding: 0 8px; overflow: hidden; min-width: 0; }
+  .seg span { font-family: var(--f-mono); font-size: .72rem; color: var(--c); white-space: nowrap; }
+  .seg span + span { color: var(--fg); }
+  .seg.free { background: var(--free); border-right: 0; }
+  .seg.free span { color: var(--muted); }
+  .ticks { position: relative; height: 18px; font-family: var(--f-mono); font-size: .72rem; color: var(--muted); }
+  .ticks span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+  .ticks span:first-child { transform: none; }
+  .ticks span:last-child { transform: translateX(-100%); }
+
+  /* Tablas */
+  .tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); }
+  table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; white-space: nowrap; }
+  th { font-family: var(--f-mono); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: var(--bg); }
+  tr:last-child td { border-bottom: 0; }
+  td.wrapc { white-space: normal; min-width: 220px; }
+  td .mono { white-space: nowrap; }
+  .note { font-size: .86rem; color: var(--muted); }
+
+  /* Filtro de dispositivos */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+  .filters button { font: 500 .85rem var(--f-body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+  .filters button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .filters button:focus-visible { outline: 2px solid var(--med); outline-offset: 2px; }
+
+  /* Sustentación */
+  .qa { display: grid; gap: 8px; }
+  details { background: var(--surface); border: 1px solid var(--line); padding: 12px 16px; }
+  summary { cursor: pointer; font-weight: 600; }
+  summary:focus-visible { outline: 2px solid var(--med); outline-offset: 3px; }
+  details p { margin-top: 8px; font-size: .93rem; }
+
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+  .two > * { min-width: 0; }
+
+  footer { font-size: .82rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+  html { scroll-behavior: smooth; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Trabajo final · Redes de Datos I · Politécnico Colombiano Jaime Isaza Cadavid</div>
+    <h1>Café Montaña S.A.S. — red corporativa multisede</h1>
+    <p>Diseño de la red de tres sedes (Medellín, Bogotá y Cali) con direccionamiento VLSM, servicios centralizados y enrutamiento estático en topología de estrella, para implementar en Cisco Packet Tracer.</p>
+    <div class="meta">
+      <span class="tag">Bloque 172.20.0.0/23</span>
+      <span class="tag">3 sedes · 7 subredes</span>
+      <span class="tag">DHCP + DNS + Web centralizados</span>
+      <span class="tag">Rutas estáticas</span>
+    </div>
+    <nav aria-label="Secciones">
+      <a href="#equipo">Equipo</a>
+      <a href="#topologia">Topología</a>
+      <a href="#direccionamiento">Direccionamiento</a>
+      <a href="#dispositivos">Dispositivos</a>
+      <a href="#pruebas">Pruebas</a>
+      <a href="#sustentacion">Sustentación</a>
+      <a href="maqueta.html" style="color:var(--med)">Maqueta 3D ↗</a>
+    </nav>
+  </header>
+
+  <!-- EQUIPO -->
+  <section id="equipo">
+    <div class="sec-head">
+      <h2>Equipo y orden de trabajo</h2>
+      <p>Se trabaja sobre un solo archivo, <code>CafeMontana.pkt</code>, que pasa de mano en mano. Medellín va primero porque ahí están el router central y el servidor DHCP.</p>
+    </div>
+    <div class="team">
+      <article class="member s-med">
+        <span class="turn">Turno 1 · Sede central</span>
+        <h3>Mauricio — Medellín</h3>
+        <ul>
+          <li>R-MEDELLIN (2911 + HWIC-2T) y 3 subredes</li>
+          <li>Servidores: DHCP, DNS y web</li>
+          <li>Wifi: AP-MED y 2 portátiles</li>
+          <li>Documento: empresa, requerimientos y topología</li>
+        </ul>
+      </article>
+      <article class="member s-bog">
+        <span class="turn">Turno 2 · Sede remota 1</span>
+        <h3>Andrés — Bogotá</h3>
+        <ul>
+          <li>R-BOGOTA (1941 + HWIC-2T) y enlace WAN1</li>
+          <li>Ruta y clock rate en R-MEDELLIN</li>
+          <li>Pool DHCP BOGOTA, impresora y PCs</li>
+          <li>Documento: cálculo VLSM y tablas</li>
+        </ul>
+      </article>
+      <article class="member s-cal">
+        <span class="turn">Turno 3 · Sede remota 2</span>
+        <h3>Edward — Cali</h3>
+        <ul>
+          <li>R-CALI (1941 + HWIC-2T) y enlace WAN2</li>
+          <li>Ruta y clock rate en R-MEDELLIN</li>
+          <li>Pool DHCP CALI, impresora y PCs</li>
+          <li>Pruebas finales, evidencias y conclusiones</li>
+        </ul>
+      </article>
+    </div>
+    <div class="flow">Mauricio ──► Andrés ──► Edward ──► pruebas finales con los 3</div>
+  </section>
+
+  <!-- TOPOLOGÍA -->
+  <section id="topologia">
+    <div class="sec-head">
+      <h2>Topología física y lógica</h2>
+      <p>Estrella: Medellín en el centro concentra los servicios, y cada sede remota se conecta a ella con un enlace serial.</p>
+    </div>
+
+    <div class="diagram">
+      <svg viewBox="0 0 1000 650" role="img" aria-label="Topología: R-MEDELLIN conecta la LAN administrativa, la LAN de servidores y la LAN inalámbrica, y se enlaza por WAN1 con R-BOGOTA y por WAN2 con R-CALI">
+        <!-- Zonas -->
+        <rect class="z s-med" x="20" y="10" width="960" height="300" rx="10" style="fill:var(--med-soft);stroke:var(--med)"/>
+        <text class="zl" x="36" y="298" style="fill:var(--med)">SEDE CENTRAL · MEDELLÍN</text>
+        <rect class="z" x="60" y="380" width="380" height="260" rx="10" style="fill:var(--bog-soft);stroke:var(--bog)"/>
+        <text class="zl" x="76" y="402" style="fill:var(--bog)">SEDE REMOTA 1 · BOGOTÁ</text>
+        <text class="sub" x="76" y="418">LAN usuarios 172.20.0.0/25</text>
+        <rect class="z" x="560" y="380" width="380" height="260" rx="10" style="fill:var(--cal-soft);stroke:var(--cal)"/>
+        <text class="zl" x="576" y="402" style="fill:var(--cal)">SEDE REMOTA 2 · CALI</text>
+        <text class="sub" x="576" y="418">LAN usuarios 172.20.0.192/26</text>
+
+        <!-- Cables Medellín -->
+        <line class="wire" x1="90" y1="67" x2="160" y2="125"/>
+        <line class="wire" x1="180" y1="67" x2="180" y2="125"/>
+        <line class="wire" x1="270" y1="67" x2="200" y2="125"/>
+        <line class="wire" x1="440" y1="62" x2="480" y2="105"/>
+        <line class="wire" x1="560" y1="62" x2="520" y2="105"/>
+        <line class="wifi" x1="760" y1="67" x2="805" y2="125"/>
+        <line class="wifi" x1="880" y1="67" x2="835" y2="125"/>
+        <line class="wire" x1="477" y1="243" x2="240" y2="148"/>
+        <line class="wire" x1="500" y1="226" x2="500" y2="135"/>
+        <line class="wire" x1="523" y1="243" x2="770" y2="148"/>
+
+        <!-- WAN -->
+        <line class="wanl" x1="483" y1="267" x2="267" y2="413"/>
+        <line class="wanl" x1="517" y1="267" x2="733" y2="413"/>
+        <text class="want" x="362" y="338" text-anchor="end" font-weight="500">WAN1 · 172.20.1.48/30</text>
+        <text class="want" x="362" y="352" text-anchor="end">S0/0/0 .49 ↔ S0/0/0 .50</text>
+        <text class="want" x="638" y="338" font-weight="500">WAN2 · 172.20.1.52/30</text>
+        <text class="want" x="638" y="352">S0/0/1 .53 ↔ S0/0/0 .54</text>
+
+        <!-- Cables remotas -->
+        <line class="wire" x1="250" y1="452" x2="250" y2="505"/>
+        <line class="wire" x1="230" y1="535" x2="150" y2="583"/>
+        <line class="wire" x1="250" y1="535" x2="250" y2="583"/>
+        <line class="wire" x1="270" y1="535" x2="350" y2="583"/>
+        <line class="wire" x1="750" y1="452" x2="750" y2="505"/>
+        <line class="wire" x1="730" y1="535" x2="650" y2="583"/>
+        <line class="wire" x1="750" y1="535" x2="750" y2="583"/>
+        <line class="wire" x1="770" y1="535" x2="850" y2="583"/>
+
+        <!-- Puertos de R-MEDELLIN -->
+        <text class="port" x="340" y="218">G0/0</text>
+        <text class="port" x="340" y="232">172.20.0.129</text>
+        <text class="port" x="510" y="178">G0/1</text>
+        <text class="port" x="510" y="192">172.20.1.33</text>
+        <text class="port" x="628" y="222">G0/2</text>
+        <text class="port" x="628" y="236">172.20.1.1</text>
+        <text class="port" x="262" y="476">G0/0 · 172.20.0.1</text>
+        <text class="port" x="762" y="476">G0/0 · 172.20.0.193</text>
+
+        <!-- Hosts Medellín -->
+        <rect class="host" x="52" y="33" width="76" height="34" rx="4"/><text class="ht" x="90" y="54">PC-ADM1</text>
+        <rect class="host" x="142" y="33" width="76" height="34" rx="4"/><text class="ht" x="180" y="54">PC-ADM2</text>
+        <rect class="host" x="232" y="33" width="76" height="34" rx="4"/><text class="ht" x="270" y="54">IMP-MED</text>
+        <rect class="host" x="388" y="28" width="104" height="34" rx="4"/><text class="ht" x="440" y="49">SRV-DHCP-DNS</text>
+        <rect class="host" x="512" y="28" width="96" height="34" rx="4"/><text class="ht" x="560" y="49">SRV-WEB</text>
+        <rect class="host" x="718" y="33" width="84" height="34" rx="4"/><text class="ht" x="760" y="54">LAPTOP-1</text>
+        <rect class="host" x="838" y="33" width="84" height="34" rx="4"/><text class="ht" x="880" y="54">LAPTOP-2</text>
+
+        <!-- Switches y AP -->
+        <rect x="120" y="125" width="120" height="30" rx="4" style="fill:var(--surface);stroke:var(--med);stroke-width:2"/>
+        <text class="swt" x="180" y="144" style="fill:var(--med)">SW-ADMIN</text>
+        <text class="sub" x="180" y="172" text-anchor="middle">LAN admin 172.20.0.128/26</text>
+        <rect x="440" y="105" width="120" height="30" rx="4" style="fill:var(--surface);stroke:var(--med);stroke-width:2"/>
+        <text class="swt" x="500" y="124" style="fill:var(--med)">SW-SERVIDORES</text>
+        <text class="sub" x="432" y="152" text-anchor="end">LAN servidores 172.20.1.32/28</text>
+        <rect x="770" y="125" width="100" height="30" rx="15" style="fill:var(--surface);stroke:var(--med);stroke-width:2"/>
+        <text class="swt" x="820" y="144" style="fill:var(--med)">AP-MED</text>
+        <text class="sub" x="820" y="172" text-anchor="middle">LAN inalámbrica 172.20.1.0/27</text>
+
+        <rect x="190" y="505" width="120" height="30" rx="4" style="fill:var(--surface);stroke:var(--bog);stroke-width:2"/>
+        <text class="swt" x="250" y="524" style="fill:var(--bog)">SW-BOG</text>
+        <rect x="690" y="505" width="120" height="30" rx="4" style="fill:var(--surface);stroke:var(--cal);stroke-width:2"/>
+        <text class="swt" x="750" y="524" style="fill:var(--cal)">SW-CALI</text>
+
+        <!-- Hosts remotas -->
+        <rect class="host" x="112" y="583" width="76" height="34" rx="4"/><text class="ht" x="150" y="604">PC-BOG1</text>
+        <rect class="host" x="212" y="583" width="76" height="34" rx="4"/><text class="ht" x="250" y="604">PC-BOG2</text>
+        <rect class="host" x="312" y="583" width="76" height="34" rx="4"/><text class="ht" x="350" y="604">IMP-BOG</text>
+        <rect class="host" x="608" y="583" width="84" height="34" rx="4"/><text class="ht" x="650" y="604">PC-CALI1</text>
+        <rect class="host" x="708" y="583" width="84" height="34" rx="4"/><text class="ht" x="750" y="604">PC-CALI2</text>
+        <rect class="host" x="808" y="583" width="84" height="34" rx="4"/><text class="ht" x="850" y="604">IMP-CALI</text>
+
+        <!-- Routers -->
+        <circle cx="500" cy="250" r="24" style="fill:var(--surface);stroke:var(--med);stroke-width:3"/>
+        <text class="rt" x="500" y="255" text-anchor="middle" style="font-size:12px">R</text>
+        <text class="rt" x="500" y="291" text-anchor="middle">R-MEDELLIN</text>
+        <text class="sub" x="500" y="304" text-anchor="middle">Cisco 2911</text>
+        <circle cx="250" cy="430" r="22" style="fill:var(--surface);stroke:var(--bog);stroke-width:3"/>
+        <text class="rt" x="250" y="435" text-anchor="middle" style="font-size:12px">R</text>
+        <text class="rt" x="282" y="434">R-BOGOTA</text>
+        <text class="sub" x="282" y="448">Cisco 1941</text>
+        <circle cx="750" cy="430" r="22" style="fill:var(--surface);stroke:var(--cal);stroke-width:3"/>
+        <text class="rt" x="750" y="435" text-anchor="middle" style="font-size:12px">R</text>
+        <text class="rt" x="782" y="434">R-CALI</text>
+        <text class="sub" x="782" y="448">Cisco 1941</text>
+      </svg>
+    </div>
+    <p class="note">Línea continua: cobre (Copper Straight-Through). Línea punteada gruesa: serial (Serial DCE, conectado empezando por R-MEDELLIN). Línea punteada fina: wifi (SSID CAFE-MONTANA, WPA2-PSK).</p>
+
+    <div class="why">
+      <div><b>Por qué estrella</b><span>Medellín concentra los servicios, así que todas las sedes llegan a los servidores con un solo enlace.</span></div>
+      <div><b>Económica y simple</b><span>Solo 2 enlaces WAN y pocas rutas estáticas. Bogotá y Cali se comunican pasando por Medellín.</span></div>
+      <div><b>Tres redes en Medellín</b><span>Separar usuarios, servidores y wifi da orden y seguridad: los visitantes no quedan en la red de contabilidad.</span></div>
+      <div><b>Punto débil</b><span>Si R-MEDELLIN falla, las sedes quedan aisladas. Como mejora futura se propone un enlace WAN3 Bogotá–Cali.</span></div>
+    </div>
+  </section>
+
+  <!-- DIRECCIONAMIENTO -->
+  <section id="direccionamiento">
+    <div class="sec-head">
+      <h2>Direccionamiento IPv4 con VLSM</h2>
+      <p>Se necesitan 312 direcciones. Un /24 (256) no alcanza, así que se toma <code>172.20.0.0/23</code> (512), dentro del rango privado 172.16.0.0/12. Las subredes se asignan de la más grande a la más pequeña.</p>
+    </div>
+
+    <div class="space" aria-label="Uso del bloque 172.20.0.0/23 a escala">
+      <div class="eyebrow">El bloque /23 dibujado a escala (512 direcciones)</div>
+      <div class="bar">
+        <div class="seg s-bog" style="flex:128"><span>/25</span><span>Bogotá</span></div>
+        <div class="seg s-med" style="flex:64"><span>/26</span><span>Admin</span></div>
+        <div class="seg s-cal" style="flex:64"><span>/26</span><span>Cali</span></div>
+        <div class="seg s-med" style="flex:32"><span>/27</span><span>Wifi</span></div>
+        <div class="seg s-med" style="flex:16" title="Servidores /28"><span>/28</span></div>
+        <div class="seg s-wan" style="flex:4;padding:0" title="WAN1 /30"></div>
+        <div class="seg s-wan" style="flex:4;padding:0" title="WAN2 /30"></div>
+        <div class="seg free" style="flex:200"><span>libre</span><span>200 direcciones</span></div>
+      </div>
+      <div class="ticks">
+        <span style="left:0">.0.0</span>
+        <span style="left:25%">.0.128</span>
+        <span style="left:50%">.1.0</span>
+        <span style="left:60.9%">.1.56</span>
+        <span style="left:100%">.1.255</span>
+      </div>
+    </div>
+
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Sede</th><th>Red</th><th>Hosts</th><th>Red/prefijo</th><th>Máscara</th><th>Rango utilizable</th><th>Gateway</th><th>Broadcast</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip s-bog">Bogotá</span></td><td>LAN usuarios</td><td>100</td><td class="mono">172.20.0.0/25</td><td class="mono">255.255.255.128</td><td class="mono">.0.1 – .0.126</td><td class="mono">172.20.0.1</td><td class="mono">172.20.0.127</td></tr>
+          <tr><td><span class="chip s-med">Medellín</span></td><td>LAN administrativa</td><td>50</td><td class="mono">172.20.0.128/26</td><td class="mono">255.255.255.192</td><td class="mono">.0.129 – .0.190</td><td class="mono">172.20.0.129</td><td class="mono">172.20.0.191</td></tr>
+          <tr><td><span class="chip s-cal">Cali</span></td><td>LAN usuarios</td><td>40</td><td class="mono">172.20.0.192/26</td><td class="mono">255.255.255.192</td><td class="mono">.0.193 – .0.254</td><td class="mono">172.20.0.193</td><td class="mono">172.20.0.255</td></tr>
+          <tr><td><span class="chip s-med">Medellín</span></td><td>LAN inalámbrica</td><td>20</td><td class="mono">172.20.1.0/27</td><td class="mono">255.255.255.224</td><td class="mono">.1.1 – .1.30</td><td class="mono">172.20.1.1</td><td class="mono">172.20.1.31</td></tr>
+          <tr><td><span class="chip s-med">Medellín</span></td><td>LAN servidores</td><td>5 → 10</td><td class="mono">172.20.1.32/28</td><td class="mono">255.255.255.240</td><td class="mono">.1.33 – .1.46</td><td class="mono">172.20.1.33</td><td class="mono">172.20.1.47</td></tr>
+          <tr><td><span class="chip s-wan">WAN 1</span></td><td>Medellín–Bogotá</td><td>2</td><td class="mono">172.20.1.48/30</td><td class="mono">255.255.255.252</td><td class="mono">.1.49 – .1.50</td><td>No aplica</td><td class="mono">172.20.1.51</td></tr>
+          <tr><td><span class="chip s-wan">WAN 2</span></td><td>Medellín–Cali</td><td>2</td><td class="mono">172.20.1.52/30</td><td class="mono">255.255.255.252</td><td class="mono">.1.53 – .1.54</td><td>No aplica</td><td class="mono">172.20.1.55</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="two">
+      <div style="display:grid;gap:10px">
+        <h3>Interfaces WAN</h3>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Enlace</th><th>R-MEDELLIN (DCE)</th><th>Router remoto</th></tr></thead>
+            <tbody>
+              <tr><td><span class="chip s-wan">WAN1</span></td><td class="mono">S0/0/0 · 172.20.1.49</td><td class="mono">R-BOGOTA S0/0/0 · 172.20.1.50</td></tr>
+              <tr><td><span class="chip s-wan">WAN2</span></td><td class="mono">S0/0/1 · 172.20.1.53</td><td class="mono">R-CALI S0/0/0 · 172.20.1.54</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="display:grid;gap:10px">
+        <h3>Rutas estáticas</h3>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Router</th><th>Destino</th><th>Siguiente salto</th></tr></thead>
+            <tbody>
+              <tr><td><span class="chip s-med">R-MEDELLIN</span></td><td class="mono">172.20.0.0/25</td><td class="mono">172.20.1.50</td></tr>
+              <tr><td><span class="chip s-med">R-MEDELLIN</span></td><td class="mono">172.20.0.192/26</td><td class="mono">172.20.1.54</td></tr>
+              <tr><td><span class="chip s-bog">R-BOGOTA</span></td><td class="mono">0.0.0.0/0</td><td class="mono">172.20.1.49</td></tr>
+              <tr><td><span class="chip s-cal">R-CALI</span></td><td class="mono">0.0.0.0/0</td><td class="mono">172.20.1.53</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:10px">
+      <h3>Pools DHCP en SRV-DHCP-DNS (172.20.1.34)</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Pool</th><th>Default gateway</th><th>DNS</th><th>Start IP</th><th>Máscara</th><th>Máx.</th><th>Entrega</th><th>Lo crea</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">ADMIN</td><td class="mono">172.20.0.129</td><td class="mono">172.20.1.34</td><td class="mono">172.20.0.140</td><td class="mono">255.255.255.192</td><td>50</td><td class="mono">.0.140 – .0.189</td><td><span class="chip s-med">Mauricio</span></td></tr>
+            <tr><td class="mono">WIFI</td><td class="mono">172.20.1.1</td><td class="mono">172.20.1.34</td><td class="mono">172.20.1.10</td><td class="mono">255.255.255.224</td><td>20</td><td class="mono">.1.10 – .1.29</td><td><span class="chip s-med">Mauricio</span></td></tr>
+            <tr><td class="mono">BOGOTA</td><td class="mono">172.20.0.1</td><td class="mono">172.20.1.34</td><td class="mono">172.20.0.10</td><td class="mono">255.255.255.128</td><td>100</td><td class="mono">.0.10 – .0.109</td><td><span class="chip s-bog">Andrés</span></td></tr>
+            <tr><td class="mono">CALI</td><td class="mono">172.20.0.193</td><td class="mono">172.20.1.34</td><td class="mono">172.20.0.200</td><td class="mono">255.255.255.192</td><td>40</td><td class="mono">.0.200 – .0.239</td><td><span class="chip s-cal">Edward</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">R-BOGOTA, R-CALI y R-MEDELLIN (en G0/0 y G0/2) llevan <code>ip helper-address 172.20.1.34</code> para que las solicitudes DHCP lleguen al servidor, que está en otra subred.</p>
+    </div>
+  </section>
+
+  <!-- DISPOSITIVOS -->
+  <section id="dispositivos">
+    <div class="sec-head">
+      <h2>Direccionamiento de dispositivos</h2>
+      <p>Las IPs marcadas como DHCP se reemplazan al final por la que muestre <code>ipconfig</code> en cada equipo.</p>
+    </div>
+    <div class="filters" role="group" aria-label="Filtrar por sede">
+      <button type="button" id="f-all" data-f="all" aria-pressed="true">Todas</button>
+      <button type="button" id="f-med" data-f="med" aria-pressed="false">Medellín</button>
+      <button type="button" id="f-bog" data-f="bog" aria-pressed="false">Bogotá</button>
+      <button type="button" id="f-cal" data-f="cal" aria-pressed="false">Cali</button>
+    </div>
+    <div class="tbl">
+      <table id="devs">
+        <thead><tr><th>Sede</th><th>Dispositivo</th><th>Interfaz</th><th>IPv4</th><th>Prefijo</th><th>Gateway</th><th>Asignación</th></tr></thead>
+        <tbody>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>R-MEDELLIN</td><td>G0/0 · LAN admin</td><td class="mono">172.20.0.129</td><td>/26</td><td>No aplica</td><td>Estática</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>R-MEDELLIN</td><td>G0/1 · LAN servidores</td><td class="mono">172.20.1.33</td><td>/28</td><td>No aplica</td><td>Estática</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>R-MEDELLIN</td><td>G0/2 · LAN inalámbrica</td><td class="mono">172.20.1.1</td><td>/27</td><td>No aplica</td><td>Estática</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>R-MEDELLIN</td><td>S0/0/0 · WAN1</td><td class="mono">172.20.1.49</td><td>/30</td><td>No aplica</td><td>Estática</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>R-MEDELLIN</td><td>S0/0/1 · WAN2</td><td class="mono">172.20.1.53</td><td>/30</td><td>No aplica</td><td>Estática</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>SRV-DHCP-DNS</td><td>Fa0</td><td class="mono">172.20.1.34</td><td>/28</td><td class="mono">172.20.1.33</td><td>Estática</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>SRV-WEB</td><td>Fa0</td><td class="mono">172.20.1.35</td><td>/28</td><td class="mono">172.20.1.33</td><td>Estática</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>IMP-MED</td><td>Fa0</td><td class="mono">172.20.0.130</td><td>/26</td><td class="mono">172.20.0.129</td><td>Estática</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>PC-ADM1</td><td>Fa0</td><td class="mono">.0.140 – .0.189</td><td>/26</td><td class="mono">172.20.0.129</td><td>DHCP</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>PC-ADM2</td><td>Fa0</td><td class="mono">.0.140 – .0.189</td><td>/26</td><td class="mono">172.20.0.129</td><td>DHCP</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>AP-MED</td><td>Port 0</td><td>Sin IP (capa 2)</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>LAPTOP-1</td><td>Wireless0</td><td class="mono">.1.10 – .1.29</td><td>/27</td><td class="mono">172.20.1.1</td><td>DHCP</td></tr>
+          <tr data-s="med"><td><span class="chip s-med">Medellín</span></td><td>LAPTOP-2</td><td>Wireless0</td><td class="mono">.1.10 – .1.29</td><td>/27</td><td class="mono">172.20.1.1</td><td>DHCP</td></tr>
+          <tr data-s="bog"><td><span class="chip s-bog">Bogotá</span></td><td>R-BOGOTA</td><td>G0/0 · LAN</td><td class="mono">172.20.0.1</td><td>/25</td><td>No aplica</td><td>Estática</td></tr>
+          <tr data-s="bog"><td><span class="chip s-bog">Bogotá</span></td><td>R-BOGOTA</td><td>S0/0/0 · WAN1</td><td class="mono">172.20.1.50</td><td>/30</td><td>No aplica</td><td>Estática</td></tr>
+          <tr data-s="bog"><td><span class="chip s-bog">Bogotá</span></td><td>IMP-BOG</td><td>Fa0</td><td class="mono">172.20.0.2</td><td>/25</td><td class="mono">172.20.0.1</td><td>Estática</td></tr>
+          <tr data-s="bog"><td><span class="chip s-bog">Bogotá</span></td><td>PC-BOG1</td><td>Fa0</td><td class="mono">.0.10 – .0.109</td><td>/25</td><td class="mono">172.20.0.1</td><td>DHCP</td></tr>
+          <tr data-s="bog"><td><span class="chip s-bog">Bogotá</span></td><td>PC-BOG2</td><td>Fa0</td><td class="mono">.0.10 – .0.109</td><td>/25</td><td class="mono">172.20.0.1</td><td>DHCP</td></tr>
+          <tr data-s="cal"><td><span class="chip s-cal">Cali</span></td><td>R-CALI</td><td>G0/0 · LAN</td><td class="mono">172.20.0.193</td><td>/26</td><td>No aplica</td><td>Estática</td></tr>
+          <tr data-s="cal"><td><span class="chip s-cal">Cali</span></td><td>R-CALI</td><td>S0/0/0 · WAN2</td><td class="mono">172.20.1.54</td><td>/30</td><td>No aplica</td><td>Estática</td></tr>
+          <tr data-s="cal"><td><span class="chip s-cal">Cali</span></td><td>IMP-CALI</td><td>Fa0</td><td class="mono">172.20.0.194</td><td>/26</td><td class="mono">172.20.0.193</td><td>Estática</td></tr>
+          <tr data-s="cal"><td><span class="chip s-cal">Cali</span></td><td>PC-CALI1</td><td>Fa0</td><td class="mono">.0.200 – .0.239</td><td>/26</td><td class="mono">172.20.0.193</td><td>DHCP</td></tr>
+          <tr data-s="cal"><td><span class="chip s-cal">Cali</span></td><td>PC-CALI2</td><td>Fa0</td><td class="mono">.0.200 – .0.239</td><td>/26</td><td class="mono">172.20.0.193</td><td>DHCP</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">En Packet Tracer, el AccessPoint-PT trabaja en capa 2 y no admite dirección IP. Si el docente exige una IP para el AP, se ajusta el diseño.</p>
+  </section>
+
+  <!-- PRUEBAS -->
+  <section id="pruebas">
+    <div class="sec-head">
+      <h2>Pruebas de funcionamiento</h2>
+      <p>Las hacen los tres juntos sobre el archivo final. Cada una lleva su captura de pantalla.</p>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Prueba</th><th>Desde</th><th>Comando</th><th>Qué demuestra</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">F1</td><td>PC-ADM1</td><td class="mono">ping PC-BOG1 / PC-CALI1</td><td class="wrapc">Central ↔ cada sede remota</td></tr>
+          <tr><td class="mono">F2</td><td>PC-BOG1</td><td class="mono">ping PC-CALI1</td><td class="wrapc">Remota ↔ remota, pasando por Medellín</td></tr>
+          <tr><td class="mono">F3</td><td>PC-CALI1</td><td class="mono">tracert PC-BOG1</td><td class="wrapc">Camino R-CALI → R-MEDELLIN → R-BOGOTA</td></tr>
+          <tr><td class="mono">F4</td><td>LAPTOP-1</td><td class="mono">ping PC-BOG1 / PC-CALI1</td><td class="wrapc">Clientes inalámbricos llegan a las remotas</td></tr>
+          <tr><td class="mono">F5</td><td>LAPTOP-1</td><td class="mono">www.cafemontana.com</td><td class="wrapc">DNS y servidor web desde el wifi</td></tr>
+          <tr><td class="mono">F6</td><td>R-MEDELLIN</td><td class="mono">show ip interface brief</td><td class="wrapc">Las 5 interfaces en up/up</td></tr>
+          <tr><td class="mono">F7</td><td>R-MEDELLIN</td><td class="mono">show ip route</td><td class="wrapc">Redes conectadas (C) y rutas estáticas (S) hacia Bogotá y Cali</td></tr>
+          <tr><td class="mono">F8</td><td>SRV-DHCP-DNS</td><td class="mono">Services → DHCP</td><td class="wrapc">Los 5 pools configurados</td></tr>
+          <tr><td class="mono">F9</td><td>Vista general</td><td class="mono">—</td><td class="wrapc">Topología completa con todos los enlaces en verde</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Un ping de Bogotá a Cali llega con TTL 125: sale con 128 y atraviesa 3 routers. El primer ping hacia un destino nuevo puede perderse mientras se resuelve el ARP.</p>
+  </section>
+
+  <!-- SUSTENTACIÓN -->
+  <section id="sustentacion">
+    <div class="sec-head">
+      <h2>Preguntas para la sustentación</h2>
+      <p>Cada uno explica su sede, pero los tres deben poder responder cualquiera de estas.</p>
+    </div>
+    <div class="qa">
+      <details><summary>¿Por qué el bloque 172.20.0.0/23?</summary><p>Es privado (rango 172.16.0.0/12). Sumando las subredes salen 312 direcciones. Un /24 da 256 y no alcanza; un /23 da 512 y deja unas 200 libres para crecer.</p></details>
+      <details><summary>¿Por qué Bogotá es /25?</summary><p>Necesita 100 hosts más el gateway, 101 en total. Un /25 da 126 direcciones útiles; un /26 da 62 y no alcanza.</p></details>
+      <details><summary>¿Por qué los enlaces WAN son /30?</summary><p>En cada enlace solo hay dos routers. Un /30 da exactamente dos direcciones útiles y no desperdicia espacio.</p></details>
+      <details><summary>¿Qué es el gateway y cuál usa cada red?</summary><p>Es la IP del router dentro de cada LAN, siempre la primera útil. Las PCs envían ahí todo lo que va para otra red. Medellín tiene tres gateways, uno por subred.</p></details>
+      <details><summary>¿Cómo llegan Bogotá y Cali a las demás redes?</summary><p>Cada una tiene una ruta por defecto (0.0.0.0/0) hacia R-MEDELLIN. R-MEDELLIN tiene una ruta estática hacia la LAN de cada sede remota.</p></details>
+      <details><summary>¿Cómo recibe IP una PC de Cali si el DHCP está en Medellín?</summary><p>La PC pide IP con un broadcast, y los routers no reenvían broadcasts. El comando <code>ip helper-address 172.20.1.34</code> en G0/0 de R-CALI toma esa solicitud y la envía directamente al servidor.</p></details>
+      <details><summary>¿Por qué R-MEDELLIN también lleva helper?</summary><p>El servidor está en la LAN de servidores, no en la administrativa ni en la inalámbrica. Sin helper en G0/0 y G0/2, esas PCs y portátiles no recibirían IP.</p></details>
+      <details><summary>¿Por qué servidores e impresoras tienen IP fija?</summary><p>Los usuarios necesitan encontrarlos siempre en la misma dirección. Si cambiaran de IP, el DNS y las impresoras configuradas dejarían de funcionar.</p></details>
+      <details><summary>¿Qué hace el clock rate?</summary><p>Da la velocidad del enlace serial. Se configura en el lado DCE, que en este diseño es R-MEDELLIN.</p></details>
+    </div>
+  </section>
+
+  <footer>Café Montaña S.A.S. es una empresa ficticia creada para el trabajo final de Redes de Datos I. Integrantes: Mauricio, Andrés y Edward.</footer>
+</div>
+
+<script>
+  (function () {
+    var buttons = document.querySelectorAll('.filters button');
+    var rows = document.querySelectorAll('#devs tbody tr');
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var f = b.getAttribute('data-f');
+        buttons.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        rows.forEach(function (r) { r.hidden = !(f === 'all' || r.getAttribute('data-s') === f); });
+      });
+    });
+  })();
+</script>
+</body>
+</html>
