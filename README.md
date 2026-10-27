@@ -55,3 +55,29 @@ Cómo usarla:
 ## Requisitos
 
 Las páginas cargan desde internet las fuentes (Google Fonts) y el motor 3D (Three.js 0.128 desde jsDelivr), así que necesitan conexión.
+
+---
+
+## Contacto
+
+**Jorge Eduardo Muñoz Quintero**  
+*Desarrollador Principal*
+
+* 📧 jorge_munoz69261@elpoli.edu.co
+* 📱 3003766780  
+
+**Andrés Ávila**  
+*Desarrollador*
+
+* 📧 andres_avila69261@elpoli.edu.co
+* 📱 322 6019465
+
+**Mauricio Cardona**  
+*Desarrollador*
+
+* 📧 mauricio_cardona69261@elpoli.edu.co
+* 📱 310 6459102
+
+<p align="center">
+  <sub>Red Café Montaña · REDES1</sub>
+</p>

@@ -14,6 +14,7 @@
     --bog: #b45309; --bog-soft: #fbeddb;
     --cal: #6d28d9; --cal-soft: #eee6fb;
     --wan: #475569; --wan-soft: #e7ebf0; --free: #eef1f3;
+    --coffee: #7a4a2e; --crema: #c08a5c;
     --f-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
     --f-body: "IBM Plex Sans", system-ui, "Segoe UI", sans-serif;
     --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
@@ -25,6 +26,7 @@
       --bog: #f5a524; --bog-soft: #32230d;
       --cal: #a78bfa; --cal-soft: #241b3b;
       --wan: #94a3b8; --wan-soft: #1f2a35; --free: #1a232b;
+      --coffee: #8a5636; --crema: #c99a6b;
       color-scheme: dark;
     }
   }
@@ -34,10 +36,33 @@
     --bog: #f5a524; --bog-soft: #32230d;
     --cal: #a78bfa; --cal-soft: #241b3b;
     --wan: #94a3b8; --wan-soft: #1f2a35; --free: #1a232b;
+    --coffee: #8a5636; --crema: #c99a6b;
     color-scheme: dark;
   }
 
   * { box-sizing: border-box; }
+
+  /* Loader: la misma taza de la maqueta, sirviéndose mientras carga la página */
+  #loader { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: grid; place-items: center; align-content: center; gap: 18px; transition: opacity .45s ease; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); }
+  #loader.done { opacity: 0; pointer-events: none; }
+  #loader svg { width: min(180px, 46vw); height: auto; overflow: visible; }
+  #loader .cup { fill: none; stroke: var(--fg); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+  #loader .brew { fill: var(--coffee); }
+  #loader .crema { fill: var(--crema); }
+  #loader .level { animation: fill 1.7s cubic-bezier(.3,.7,.4,1) forwards; transform: translateY(64px); }
+  #loader .stream { fill: var(--coffee); transform-origin: 100px 8px; animation: pour 1.7s ease-in-out forwards; }
+  #loader .steam path { fill: none; stroke: var(--muted); stroke-width: 4; stroke-linecap: round; opacity: 0; animation: steam 2.4s ease-in-out 1.6s infinite; }
+  #loader .steam path:nth-child(2) { animation-delay: 1.95s; }
+  #loader .steam path:nth-child(3) { animation-delay: 2.3s; }
+  #loader .brand { font-family: var(--f-display); font-size: 26px; font-weight: 700; text-align: center; color: var(--fg); }
+  #loader .lsub { font-family: var(--f-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); text-align: center; }
+  @keyframes fill { to { transform: translateY(0); } }
+  @keyframes pour { 0% { transform: scaleY(0); } 12% { transform: scaleY(1); } 82% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1) translateY(70px); opacity: 0; } }
+  @keyframes steam { 0% { opacity: 0; transform: translateY(8px); } 40% { opacity: .7; } 100% { opacity: 0; transform: translateY(-14px); } }
+  @media (prefers-reduced-motion: reduce) {
+    #loader .level, #loader .stream, #loader .steam path { animation: none; }
+    #loader .level { transform: none; } #loader .stream { opacity: 0; } #loader .steam path { opacity: .6; }
+  }
   body {
     background: var(--bg); color: var(--fg); font-family: var(--f-body);
     font-size: 15px; line-height: 1.55;
@@ -142,6 +167,36 @@
 </style>
 </head>
 <body>
+
+<div id="loader" role="status" aria-label="Cargando el diseño">
+  <svg viewBox="0 0 200 190" aria-hidden="true">
+    <defs><clipPath id="cup-in"><path d="M58 94 H142 V122 Q142 157 100 157 Q58 157 58 122 Z"/></clipPath></defs>
+    <rect class="stream" x="96" y="8" width="8" height="90" rx="4"/>
+    <g clip-path="url(#cup-in)"><g class="level">
+      <rect class="brew" x="50" y="100" width="100" height="70"/>
+      <rect class="crema" x="50" y="97" width="100" height="6" rx="3"/>
+    </g></g>
+    <g class="steam"><path d="M82 82 q-6 -10 0 -20 q6 -10 0 -20"/><path d="M100 80 q-6 -10 0 -20 q6 -10 0 -20"/><path d="M118 82 q-6 -10 0 -20 q6 -10 0 -20"/></g>
+    <path class="cup" d="M55 92 H145 V122 Q145 160 100 160 Q55 160 55 122 Z"/>
+    <path class="cup" d="M145 102 Q172 102 172 121 Q172 140 145 138"/>
+    <path class="cup" d="M38 172 H162"/>
+  </svg>
+  <div class="brand">Café Montaña</div>
+  <div class="lsub">Sirviendo el diseño…</div>
+</div>
+<script>
+  (function () {
+    var loader = document.getElementById('loader');
+    var start = Date.now();
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function hide() {
+      var wait = Math.max(0, (reduce ? 300 : 1900) - (Date.now() - start));
+      setTimeout(function () { loader.classList.add('done'); setTimeout(function () { loader.hidden = true; }, 500); }, wait);
+    }
+    if (document.readyState === 'complete') hide(); else window.addEventListener('load', hide);
+    setTimeout(hide, 5000);
+  })();
+</script>
 
 <div class="wrap">
 
