@@ -44,7 +44,7 @@ Ubícalos **abajo a la izquierda** de R-MEDELLIN. Para ponerles nombre: clic →
 
 ### Cable serial WAN1
 1. Selecciona el cable **Serial DCE** (rojo, con un relojito).
-2. **Primer clic en R-MEDELLIN** → elige **Serial0/0/0**.
+2. **Primer clic en R-MEDELLIN** → elige **Serial0/3/0**.
 3. Segundo clic en **R-BOGOTA** → elige **Serial0/0/0**.
 
 > Empezar por R-MEDELLIN deja ese lado como **DCE**, que es el que lleva el `clock rate`.
@@ -57,7 +57,7 @@ Ubícalos **abajo a la izquierda** de R-MEDELLIN. Para ponerles nombre: clic →
 | PC-BOG2 | FastEthernet0 | SW-BOG | FastEthernet0/2 |
 | IMP-BOG | FastEthernet0 | SW-BOG | FastEthernet0/3 |
 
-Pasa el mouse sobre el cable serial para confirmar que llega a **Serial0/0/0** en los dos routers.
+Pasa el mouse sobre el cable serial para confirmar que llega a **Serial0/3/0** en R-MEDELLIN y a **Serial0/0/0** en R-BOGOTA.
 
 ---
 
@@ -170,7 +170,7 @@ En la tabla deben quedar 4 pools: serverPool, ADMIN, WIFI y **BOGOTA**.
 **Desktop → IP Configuration → DHCP**. Debe aparecer **"DHCP request successful"** con una IP entre **172.20.0.10** y **172.20.0.109**.
 
 > **Si dice "DHCP request failed", revisa en orden:**
-> 1. R-MEDELLIN Serial0/0/0 en **up / up**.
+> 1. R-MEDELLIN Serial0/3/0 en **up / up**.
 > 2. La ruta `ip route 172.20.0.0 255.255.255.128 172.20.1.50` en R-MEDELLIN (compruébalo con `show ip route`).
 > 3. El `ip helper-address 172.20.1.34` en G0/0 de R-BOGOTA.
 > 4. El pool BOGOTA con gateway `172.20.0.1`.

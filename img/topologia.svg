@@ -40,9 +40,9 @@
         <line class="wanl" x1="483" y1="267" x2="267" y2="413"/>
         <line class="wanl" x1="517" y1="267" x2="733" y2="413"/>
         <text class="want" x="362" y="338" text-anchor="end" font-weight="500">WAN1 · 172.20.1.48/30</text>
-        <text class="want" x="362" y="352" text-anchor="end">S0/0/0 .49 ↔ S0/0/0 .50</text>
+        <text class="want" x="362" y="352" text-anchor="end">S0/3/0 .49 ↔ S0/0/0 .50</text>
         <text class="want" x="638" y="338" font-weight="500">WAN2 · 172.20.1.52/30</text>
-        <text class="want" x="638" y="352">S0/0/1 .53 ↔ S0/0/0 .54</text>
+        <text class="want" x="638" y="352">S0/3/1 .53 ↔ S0/0/0 .54</text>
 
         <!-- Cables remotas -->
         <line class="wire" x1="250" y1="452" x2="250" y2="505"/>

@@ -195,7 +195,7 @@
   // ---------- Datos del diseño ----------
   const D = [
     { id: 'r-med', name: 'R-MEDELLIN', t: 'router', s: 'med', p: [0, -3.6], model: 'Router Cisco 2911 + módulo HWIC-2T',
-      rows: [['G0/0 · LAN admin', '172.20.0.129/26'], ['G0/1 · Servidores', '172.20.1.33/28'], ['G0/2 · Wifi', '172.20.1.1/27'], ['S0/0/0 · WAN1', '172.20.1.49/30'], ['S0/0/1 · WAN2', '172.20.1.53/30']],
+      rows: [['G0/0 · LAN admin', '172.20.0.129/26'], ['G0/1 · Servidores', '172.20.1.33/28'], ['G0/2 · Wifi', '172.20.1.1/27'], ['S0/3/0 · WAN1', '172.20.1.49/30'], ['S0/3/1 · WAN2', '172.20.1.53/30']],
       note: 'Rutas estáticas: 172.20.0.0/25 vía 172.20.1.50 y 172.20.0.192/26 vía 172.20.1.54. Helper 172.20.1.34 en G0/0 y G0/2.' },
     { id: 'sw-admin', name: 'SW-ADMIN', t: 'switch', s: 'med', p: [-4.6, -6], model: 'Switch Cisco 2960',
       rows: [['Red', '172.20.0.128/26'], ['Enlace', 'G0/1 → R-MEDELLIN G0/0'], ['Puertos', 'Fa0/1–Fa0/3']], note: 'Switch de capa 2: no lleva IP en este diseño.' },

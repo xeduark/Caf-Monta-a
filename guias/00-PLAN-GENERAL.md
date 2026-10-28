@@ -61,7 +61,7 @@ En Packet Tracer se ponen **2 PCs por red** como muestra representativa. Las can
             └─────────────────────── R-MEDELLIN ┴─────────────────────┘                 │
                   │                 /           \                                       │
                   └────────────────/─────────────\──────────────────────────────────────┘
-                       S0/0/0     /  WAN1   WAN2  \    S0/0/1
+                       S0/3/0     /  WAN1   WAN2  \    S0/3/1
                                  /                 \
                      S0/0/0  R-BOGOTA            R-CALI  S0/0/0
                      (Andrés)   │ G0/0              │ G0/0   (Edward)
@@ -91,8 +91,8 @@ En Packet Tracer se ponen **2 PCs por red** como muestra representativa. Las can
 
 | Enlace | R-MEDELLIN | IP | Router remoto | IP |
 |---|---|---|---|---|
-| WAN1 | Serial0/0/0 (DCE) | 172.20.1.49/30 | R-BOGOTA Serial0/0/0 | 172.20.1.50/30 |
-| WAN2 | Serial0/0/1 (DCE) | 172.20.1.53/30 | R-CALI Serial0/0/0 | 172.20.1.54/30 |
+| WAN1 | Serial0/3/0 (DCE) | 172.20.1.49/30 | R-BOGOTA Serial0/0/0 | 172.20.1.50/30 |
+| WAN2 | Serial0/3/1 (DCE) | 172.20.1.53/30 | R-CALI Serial0/0/0 | 172.20.1.54/30 |
 
 ### Pools DHCP (todos en SRV-DHCP-DNS, 172.20.1.34)
 
@@ -114,8 +114,8 @@ Las IPs que dicen "DHCP" se completan al final con la IP real que muestre `ipcon
 | Central | R-MEDELLIN | G0/0 (LAN admin) | 172.20.0.129 | /26 | No aplica | Estática |
 | Central | R-MEDELLIN | G0/1 (LAN servidores) | 172.20.1.33 | /28 | No aplica | Estática |
 | Central | R-MEDELLIN | G0/2 (LAN inalámbrica) | 172.20.1.1 | /27 | No aplica | Estática |
-| Central | R-MEDELLIN | S0/0/0 (WAN1) | 172.20.1.49 | /30 | No aplica | Estática |
-| Central | R-MEDELLIN | S0/0/1 (WAN2) | 172.20.1.53 | /30 | No aplica | Estática |
+| Central | R-MEDELLIN | S0/3/0 (WAN1) | 172.20.1.49 | /30 | No aplica | Estática |
+| Central | R-MEDELLIN | S0/3/1 (WAN2) | 172.20.1.53 | /30 | No aplica | Estática |
 | Central | SRV-DHCP-DNS | Fa0 | 172.20.1.34 | /28 | 172.20.1.33 | Estática |
 | Central | SRV-WEB | Fa0 | 172.20.1.35 | /28 | 172.20.1.33 | Estática |
 | Central | IMP-MED | Fa0 | 172.20.0.130 | /26 | 172.20.0.129 | Estática |

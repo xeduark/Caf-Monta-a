@@ -44,7 +44,7 @@ Ubícalos **abajo a la derecha** de R-MEDELLIN. Nombre: clic → **Config** → 
 
 ### Cable serial WAN2
 1. Selecciona el cable **Serial DCE** (rojo, con relojito).
-2. **Primer clic en R-MEDELLIN** → elige **Serial0/0/1**. ⚠️ El **0/0/1**: el 0/0/0 ya es de Bogotá.
+2. **Primer clic en R-MEDELLIN** → elige **Serial0/3/1**. ⚠️ El **0/3/1**: el 0/3/0 ya es de Bogotá.
 3. Segundo clic en **R-CALI** → elige **Serial0/0/0**.
 
 ### Cables de cobre (Copper Straight-Through)
@@ -55,7 +55,7 @@ Ubícalos **abajo a la derecha** de R-MEDELLIN. Nombre: clic → **Config** → 
 | PC-CALI2 | FastEthernet0 | SW-CALI | FastEthernet0/2 |
 | IMP-CALI | FastEthernet0 | SW-CALI | FastEthernet0/3 |
 
-Pasa el mouse sobre el cable serial: debe llegar a **Serial0/0/1** en R-MEDELLIN y a **Serial0/0/0** en R-CALI.
+Pasa el mouse sobre el cable serial: debe llegar a **Serial0/3/1** en R-MEDELLIN y a **Serial0/0/0** en R-CALI.
 
 ---
 
@@ -99,7 +99,7 @@ En la **CLI de R-MEDELLIN**:
 ```
 enable
 configure terminal
-interface Serial0/0/1
+interface Serial0/3/1
  clock rate 64000
  exit
 ip route 172.20.0.192 255.255.255.192 172.20.1.54
@@ -113,7 +113,7 @@ Verifica en R-MEDELLIN:
 ```
 show ip interface brief
 ```
-**Serial0/0/0 y Serial0/0/1** deben estar en **up / up**. Si los dos están arriba, las 3 sedes ya están unidas.
+**Serial0/3/0 y Serial0/3/1** deben estar en **up / up**. Si los dos están arriba, las 3 sedes ya están unidas.
 
 ---
 
@@ -163,7 +163,7 @@ En la tabla deben quedar **5 pools**: serverPool, ADMIN, WIFI, BOGOTA y **CALI**
 **Desktop → IP Configuration → DHCP**. Debe aparecer **"DHCP request successful"** con una IP entre **172.20.0.200** y **172.20.0.239**.
 
 > **Si falla, revisa en orden:**
-> 1. R-MEDELLIN Serial0/0/1 en **up / up**.
+> 1. R-MEDELLIN Serial0/3/1 en **up / up**.
 > 2. La ruta hacia 172.20.0.192 en R-MEDELLIN (`show ip route`).
 > 3. El helper en G0/0 de R-CALI.
 > 4. El pool CALI con gateway `172.20.0.193`.

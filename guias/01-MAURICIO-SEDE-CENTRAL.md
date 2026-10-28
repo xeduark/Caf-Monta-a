@@ -10,7 +10,7 @@ Tu sede tiene 3 redes:
 | LAN servidores | 172.20.1.32/28 | 172.20.1.33 | G0/1 |
 | LAN inalámbrica | 172.20.1.0/27 | 172.20.1.1 | G0/2 |
 
-Además dejas listos los 2 puertos seriales hacia Bogotá (S0/0/0) y Cali (S0/0/1).
+Además dejas listos los 2 puertos seriales hacia Bogotá (S0/3/0) y Cali (S0/3/1).
 
 ---
 
@@ -47,7 +47,7 @@ El 2911 no trae puertos seriales, así que hay que agregarle un módulo.
 3. En la lista de la izquierda busca **HWIC-2T** y **arrástralo** a una ranura vacía.
 4. **Vuelve a encender** el router. ⚠️ No lo olvides.
 
-Ahora tienes los puertos **Serial0/0/0** y **Serial0/0/1**.
+Ahora tienes los puertos seriales del módulo. Su nombre depende de la ranura: en la ranura 0 son **Serial0/0/0** y **Serial0/0/1**. En el archivo del grupo el módulo quedó en la **ranura 3**, así que se usan **Serial0/3/0** (Bogotá) y **Serial0/3/1** (Cali).
 
 ---
 
@@ -111,13 +111,13 @@ interface GigabitEthernet0/2
  no shutdown
  exit
 
-interface Serial0/0/0
+interface Serial0/3/0
  description WAN1 hacia Bogota
  ip address 172.20.1.49 255.255.255.252
  no shutdown
  exit
 
-interface Serial0/0/1
+interface Serial0/3/1
  description WAN2 hacia Cali
  ip address 172.20.1.53 255.255.255.252
  no shutdown
